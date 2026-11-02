@@ -7,20 +7,25 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* ========================================= */
   /* Palette Warna AIRA                        */
   /* ========================================= */
-  --color-aira-primary: #176B78;      /* Deep Ocean (Primary CTA / Heading)[cite: 1] */
-  --color-aira-secondary: #4EA8DE;    /* Aqua Clean (Interactive elements)[cite: 1] */
-  --color-aira-sage: #94D2BD;         /* Soft Sage (Environment / Sustainability)[cite: 1] */
-  --color-aira-bg: #F9FBFB;           /* Ice White (Main background)[cite: 1] */
-  --color-aira-text: #26363B;         /* Deep Charcoal (Body text)[cite: 1] */
-  --color-aira-peach: #E99AB3;        /* Coral Peach (Feminine accent)[cite: 1] */
-  --color-aira-sand: #F4EBDD;         /* Soft Sand (Cards / Sections)[cite: 1] */
+  --color-aira-primary: #176B78;      /* Deep Ocean (Primary CTA / Heading) */
+  --color-aira-primary-dark: #0F525C; /* Deep Ocean gelap (hover tombol utama) */
+  --color-aira-secondary: #4EA8DE;    /* Aqua Clean (Interactive elements) */
+  --color-aira-sage: #94D2BD;         /* Soft Sage (Environment / Sustainability) */
+  --color-aira-bg: #F9FBFB;           /* Ice White (Main background) */
+  --color-aira-text: #26363B;         /* Deep Charcoal (Body text) */
+  --color-aira-peach: #E99A83;        /* Coral Peach (Feminine accent) */
+  --color-aira-sand: #F4EBDD;         /* Soft Sand (Cards / Sections) */
+  --color-aira-warm: #F6F1E9;         /* Warm (latar bagian hangat) */
+
+  --shadow-soft: 0 8px 28px -10px rgb(23 107 120 / 0.22);
 
   /* Radius Tambahan AIRA */
   --radius-aira: 16px;
@@ -65,38 +70,38 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --background: #F9FBFB;
+  --foreground: #26363B;
+  --card: #FFFFFF;
+  --card-foreground: #26363B;
+  --popover: #FFFFFF;
+  --popover-foreground: #26363B;
+  --primary: #176B78;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F4EBDD;
+  --secondary-foreground: #26363B;
+  --muted: #F6F1E9;
+  --muted-foreground: #5B6B6E;
+  --accent: #DDF0E8;
+  --accent-foreground: #26363B;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --border: #D5E3E5;
+  --input: #D5E3E5;
+  --ring: #4EA8DE;
+  --chart-1: #176B78;
+  --chart-2: #4EA8DE;
+  --chart-3: #94D2BD;
+  --chart-4: #E99A83;
+  --chart-5: #26363B;
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #26363B;
+  --sidebar-primary: #176B78;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #DDF0E8;
+  --sidebar-accent-foreground: #26363B;
+  --sidebar-border: #D5E3E5;
+  --sidebar-ring: #4EA8DE;
 }
 
 .dark {
@@ -137,10 +142,67 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
   html {
-    @apply font-sans;
+    overflow-x: clip;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading;
+  }
+  ::selection {
+    background: var(--color-aira-sage);
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-aira-secondary);
+    outline-offset: 2px;
+  }
+  input[type="range"] {
+    accent-color: var(--color-aira-primary);
+  }
+}
+
+/* Dari prototipe Figma Make */
+.table-scroll {
+  contain: inline-size;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  width: 100%;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fade-up {
+  animation: fadeUp 0.5s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }
