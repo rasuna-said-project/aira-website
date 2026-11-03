@@ -25,6 +25,21 @@
   --color-aira-sand: #F4EBDD;         /* Soft Sand (Cards / Sections) */
   --color-aira-warm: #F6F1E9;         /* Warm (latar bagian hangat) */
 
+  /* Warna status (badge) */
+  --color-aira-warning: #FDF1D8;        /* latar status Waspada */
+  --color-aira-warning-border: #F6D98C; /* chip Waspada */
+  --color-aira-warning-line: #F0C76A;   /* garis kartu Waspada */
+  --color-aira-warning-strong: #D99A1E; /* bar/ikon Waspada */
+  --color-aira-warning-text: #5C4300;   /* teks Waspada */
+  --color-aira-danger: #D4573A;         /* bar/ikon Mode Krisis */
+  --color-aira-danger-dark: #9F3F2B;    /* teks krisis (sedang) */
+  --color-aira-danger-text: #5E2414;    /* teks krisis (gelap) */
+  --color-aira-danger-ink: #3B1409;     /* teks krisis (paling gelap) */
+  --color-aira-coral-dark: #B4563C;     /* coral gelap untuk teks */
+  --color-aira-info-text: #1B5F8A;      /* teks status menunggu */
+  --color-aira-sand-border: #EBDFCA;    /* garis kartu sand */
+  --color-aira-sand-dark: #D9C9A8;      /* garis sand tegas */
+
   --shadow-soft: 0 8px 28px -10px rgb(23 107 120 / 0.22);
 
   /* Radius Tambahan AIRA */
