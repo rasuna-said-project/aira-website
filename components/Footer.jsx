@@ -45,7 +45,7 @@ const footerGroups = [
 function FooterWave() {
   return (
     <div
-      className="bg-aira-primary leading-[0]"
+      className="bg-aira-primary leading-0"
       aria-hidden="true"
     >
       <svg
@@ -94,7 +94,7 @@ export default function Footer() {
       <footer className="bg-aira-primary text-white">
 
         {/* Footer main content */}
-        <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-10 px-5 py-12 sm:py-14 md:grid-cols-12 md:gap-8">
+        <div className="mx-auto grid max-w-310 grid-cols-1 gap-10 px-5 py-12 sm:py-14 md:grid-cols-12 md:gap-8">
 
           {/* Brand section */}
           <div className="md:col-span-6">
