@@ -27,7 +27,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-aira-primary/10 bg-aira-bg/90 backdrop-blur">
-      <div className="mx-auto flex h-[72px] max-w-[1240px] items-center justify-between px-5">
+      <div className="mx-auto flex h-18 max-w-310 items-center justify-between px-5">
         <Link href="/" aria-label="AIRA — Beranda" className="flex items-center">
           <Image
             src="/images/aira-logo.svg"
