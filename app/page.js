@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-16 flex flex-col items-center justify-center text-center">
@@ -12,18 +14,18 @@ export default function Home() {
       </p>
       
       <div className="flex flex-wrap gap-4 justify-center">
-        <a
+        <Link
           href="/kalkulator-air"
           className="px-6 py-3 bg-aira-primary text-white font-medium rounded-aira hover:bg-aira-primary/90 transition"
         >
           Cek Ketahanan Air
-        </a>
-        <a
+        </Link>
+        <Link
           href="/navigasi-air"
           className="px-6 py-3 bg-aira-sand text-aira-text font-medium rounded-aira border border-aira-sage hover:bg-aira-sand/80 transition"
         >
           Cari Titik Air
-        </a>
+        </Link>
       </div>
     </div>
   );
