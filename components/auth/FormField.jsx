@@ -14,7 +14,7 @@ export default function FormField({ icon: Icon, label, name, error, onChange, ch
             onChange={onChange}
             aria-invalid={!!error}
             aria-describedby={error ? `${name}-error` : undefined}
-            className="h-[52px] rounded-2xl border-aira-primary/20 bg-white pl-12 pr-4 text-base focus-visible:border-aira-primary focus-visible:ring-aira-secondary/30 aria-invalid:border-aira-danger aria-invalid:ring-aira-danger/20 md:text-base"
+            className="h-13 rounded-2xl border-aira-primary/20 bg-white pl-12 pr-4 text-base focus-visible:border-aira-primary focus-visible:ring-aira-secondary/30 aria-invalid:border-aira-danger aria-invalid:ring-aira-danger/20 md:text-base"
             {...inputProps}
           />
           {children}

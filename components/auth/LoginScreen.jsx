@@ -5,7 +5,6 @@ import AuthCard from "@/components/auth/AuthCard";
 import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
 import LoginForm from "@/components/auth/LoginForm";
 
-// Halaman Masuk: formulir login, dan tampilan Lupa kata sandi di kartu yang sama.
 export default function LoginScreen() {
   const [forgot, setForgot] = useState(false);
 

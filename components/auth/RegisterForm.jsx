@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { UserRound, Mail, Phone } from "lucide-react";
 import FormField from "@/components/auth/FormField";
 import FormMessage from "@/components/auth/FormMessage";
 import PasswordField from "@/components/auth/PasswordField";
 import { Button } from "@/components/ui/button";
+import { register } from "@/app/actions/auth";
 
 const initialForm = {
   nama: "",
@@ -21,6 +22,7 @@ export default function RegisterForm() {
   const [formData, setFormData] = useState(initialForm);
   const [errors, setErrors] = useState({});
   const [notice, setNotice] = useState(null);
+  const [isPending, startTransition] = useTransition();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -61,15 +63,31 @@ export default function RegisterForm() {
     e.preventDefault();
     setNotice(null);
 
+    // 1. Validasi frontend lokal
     if (!validateForm()) {
       setNotice({ type: "error", text: "Periksa kembali data yang kamu masukkan." });
       return;
     }
 
-    // Backend belum diintegrasikan. Belum ada data yang dikirim atau disimpan.
-    setNotice({
-      type: "success",
-      text: "Validasi berhasil! Layanan pendaftaran akun belum terhubung dengan server.",
+    // 2. Format FormData sesuai parameter yang dibaca oleh app/actions/auth.js
+    const payload = new FormData();
+    payload.append("full_name", formData.nama);
+    payload.append("email", formData.email);
+    payload.append("password", formData.password);
+    payload.append("confirm_password", formData.konfirmasiPassword);
+    if (formData.persetujuan) {
+      payload.append("agreement", "on");
+    }
+
+    // 3. Panggil Server Action register dan tangkap responsnya
+    startTransition(async () => {
+      const res = await register(payload);
+
+      if (res?.error) {
+        setNotice({ type: "error", text: res.error });
+      } else if (res?.success) {
+        setNotice({ type: "success", text: res.success });
+      }
     });
   };
 
@@ -112,6 +130,7 @@ export default function RegisterForm() {
         />
         <PasswordField
           autoComplete="new-password"
+          name="password"
           value={formData.password}
           onChange={handleChange}
           error={errors.password}
@@ -126,7 +145,7 @@ export default function RegisterForm() {
         />
 
         <div>
-          <label className="flex min-h-[44px] items-start gap-2 text-sm">
+          <label className="flex min-h-11 items-start gap-2 text-sm">
             <input
               type="checkbox"
               name="persetujuan"
@@ -148,9 +167,10 @@ export default function RegisterForm() {
 
         <Button
           type="submit"
-          className="h-14 w-full rounded-full bg-aira-primary px-8 text-lg font-semibold text-white shadow-soft hover:bg-aira-primary-dark"
+          disabled={isPending}
+          className="h-14 w-full rounded-full bg-aira-primary px-8 text-lg font-semibold text-white shadow-soft hover:bg-aira-primary-dark disabled:opacity-50"
         >
-          Daftar Sekarang
+          {isPending ? "Mendaftarkan..." : "Daftar Sekarang"}
         </Button>
       </form>
 
@@ -162,4 +182,4 @@ export default function RegisterForm() {
       </p>
     </>
   );
-} 
+}

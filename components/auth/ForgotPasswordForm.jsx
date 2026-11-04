@@ -1,31 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Mail } from "lucide-react";
 import FormField from "@/components/auth/FormField";
 import FormMessage from "@/components/auth/FormMessage";
 import { Button } from "@/components/ui/button";
-import { requestPasswordReset } from "@/services/authService";
-import { validateEmail } from "@/lib/validation";
+import { resetPassword } from "@/app/actions/auth";
 
 export default function ForgotPasswordForm({ onBack }) {
-  const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
-  const [sent, setSent] = useState(false);
+  const [message, setMessage] = useState("");
 
   async function handleSubmit(event) {
     event.preventDefault();
-    const email = String(new FormData(event.currentTarget).get("email") ?? "");
+    setError("");
+    setMessage("");
 
-    setSent(false);
-    const message = validateEmail(email);
-    setError(message);
-    if (message) return;
+    const formData = new FormData(event.currentTarget);
 
-    setLoading(true);
-    await requestPasswordReset({ email });
-    setLoading(false);
-    setSent(true);
+    startTransition(async () => {
+      const res = await resetPassword(formData);
+      if (res?.error) {
+        setError(res.error);
+      } else if (res?.success) {
+        setMessage(res.success);
+      }
+    });
   }
 
   return (
@@ -41,27 +42,27 @@ export default function ForgotPasswordForm({ onBack }) {
           error={error}
           onChange={() => {
             setError("");
-            setSent(false);
+            setMessage("");
           }}
         />
 
-        {sent && (
-          <FormMessage type="success">
-            Jika email terdaftar, tautan untuk mengatur ulang kata sandi telah dikirim.
-          </FormMessage>
-        )}
+        {message && <FormMessage type="success">{message}</FormMessage>}
 
         <Button
           type="submit"
-          disabled={loading}
-          className="h-14 w-full rounded-full bg-aira-primary px-8 text-lg font-semibold text-white shadow-soft hover:bg-aira-primary-dark"
+          disabled={isPending}
+          className="h-14 w-full rounded-full bg-aira-primary px-8 text-lg font-semibold text-white shadow-soft hover:bg-aira-primary-dark disabled:opacity-50"
         >
-          {loading ? "Mengirim…" : "Kirim tautan reset"}
+          {isPending ? "Mengirim…" : "Kirim tautan reset"}
         </Button>
       </form>
 
       <p className="mt-6 text-center text-[15px]">
-        <button type="button" onClick={onBack} className="min-h-[44px] font-semibold text-aira-primary underline">
+        <button
+          type="button"
+          onClick={onBack}
+          className="min-h-11 font-semibold text-aira-primary underline"
+        >
           Kembali ke Masuk
         </button>
       </p>

@@ -12,28 +12,28 @@ export async function register(formData) {
   const agreement = formData.get("agreement");
 
   if (!fullName) {
-    redirect("/daftar?error=" + encodeURIComponent("Nama lengkap wajib diisi"));
+    return { error: "Nama lengkap wajib diisi." };
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email || !emailRegex.test(email)) {
-    redirect("/daftar?error=" + encodeURIComponent("Format email tidak valid"));
+    return { error: "Format email tidak valid." };
   }
 
   if (!password) {
-    redirect("/daftar?error=" + encodeURIComponent("Password wajib diisi"));
+    return { error: "Password wajib diisi." };
   }
 
   if (password.length < 8) {
-    redirect("/daftar?error=" + encodeURIComponent("Password minimal 8 karakter"));
+    return { error: "Password minimal 8 karakter." };
   }
 
   if (password !== confirmPassword) {
-    redirect("/daftar?error=" + encodeURIComponent("Konfirmasi password tidak sesuai"));
+    return { error: "Konfirmasi password tidak sesuai." };
   }
 
-  if (agreement !== "on") {
-    redirect("/daftar?error=" + encodeURIComponent("Persetujuan wajib dicentang"));
+  if (agreement !== "on" && agreement !== true) {
+    return { error: "Persetujuan wajib dicentang." };
   }
 
   const supabase = await createClient();
@@ -49,11 +49,11 @@ export async function register(formData) {
   });
 
   if (error) {
-    redirect("/daftar?error=" + encodeURIComponent(error.message));
+    return { error: error.message };
   }
 
   if (!data.session) {
-    redirect("/masuk?message=" + encodeURIComponent("Silakan periksa email untuk konfirmasi akun"));
+    return { success: "Silakan periksa email untuk konfirmasi akun." };
   }
 
   redirect("/dashboard");
@@ -65,7 +65,7 @@ export async function login(formData) {
   const password = String(formData.get("password") || "");
 
   if (!email || !password) {
-    redirect("/masuk?error=" + encodeURIComponent("Email dan password wajib diisi"));
+    return { error: "Email dan password wajib diisi." };
   }
 
   const supabase = await createClient();
@@ -76,7 +76,7 @@ export async function login(formData) {
   });
 
   if (error || !authData.user) {
-    redirect("/masuk?error=" + encodeURIComponent("Email atau password salah"));
+    return { error: "Email atau password salah." };
   }
 
   // Ambil profil berdasarkan user_id
@@ -88,12 +88,12 @@ export async function login(formData) {
 
   if (profileError || !profile) {
     await supabase.auth.signOut();
-    redirect("/masuk?error=" + encodeURIComponent("Profil pengguna tidak ditemukan"));
+    return { error: "Profil pengguna tidak ditemukan." };
   }
 
   if (profile.account_status !== "active") {
     await supabase.auth.signOut();
-    redirect("/masuk?error=" + encodeURIComponent("Akun Anda tidak aktif"));
+    return { error: "Akun Anda tidak aktif." };
   }
 
   // Arahkan berdasarkan role ke rute proyek AIRA
@@ -109,4 +109,30 @@ export async function logout() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/masuk");
+}
+
+// RESET / LUPA PASSWORD
+export async function resetPassword(formData) {
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+
+  if (!email) {
+    return { error: "Email wajib diisi." };
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return { error: "Format email tidak valid." };
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/masuk/reset-password`,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { success: "Tautan reset kata sandi telah dikirim ke email kamu." };
 }
