@@ -2,7 +2,7 @@ import "@/app/globals.css";
 import localFont from "next/font/local";
 import { Inter } from "next/font/google";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import ConditionalFooter from "@/components/ConditionalFooter";
 
 // Heading: Plus Jakarta Sans (variable font lokal)
 const plusJakartaSans = localFont({
@@ -36,10 +36,10 @@ export default function RootLayout({ children }) {
       <body
         className={`${plusJakartaSans.variable} ${inter.variable} bg-aira-bg text-aira-text font-body min-h-screen flex flex-col justify-between antialiased`}
       >
-        <Navbar />
-        <main className="grow">{children}</main>
-        <Footer />
+    <Navbar />
+      <main className="grow">{children}</main>
+      <ConditionalFooter />
       </body>
     </html>
   );
-}
+} 
