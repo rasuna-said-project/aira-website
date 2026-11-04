@@ -1,9 +1,9 @@
+import LoginScreen from "@/components/auth/LoginScreen";
+
+export const metadata = {
+  title: "Masuk - AIRA",
+};
+
 export default function Login() {
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold text-aira-primary">
-        Halaman Login
-      </h1>
-    </div>
-  );
+  return <LoginScreen />;
 }
