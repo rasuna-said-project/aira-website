@@ -11,6 +11,9 @@ import { Button } from "@/components/ui/button";
 import { loginUser } from "@/services/authService";
 import { validateEmail, validatePassword } from "@/lib/validation";
 
+// Tombol demo untuk presentasi Demo Day. Ubah menjadi false untuk menyembunyikannya (rencana: 20 November).
+const SHOW_ADMIN_DEMO = true;
+
 export default function LoginForm({ onForgot }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -91,6 +94,18 @@ export default function LoginForm({ onForgot }) {
           Daftar
         </Link>
       </p>
+
+      {SHOW_ADMIN_DEMO && (
+        <Button
+          type="button"
+          variant="outline"
+          disabled={loading}
+          onClick={() => router.push("/admin")}
+          className="mt-4 h-12 w-full rounded-full border-2 border-dashed border-aira-primary/30 text-sm font-semibold text-aira-primary hover:bg-aira-primary/5"
+        >
+          Masuk sebagai Admin (demo)
+        </Button>
+      )}
     </>
   );
 }
