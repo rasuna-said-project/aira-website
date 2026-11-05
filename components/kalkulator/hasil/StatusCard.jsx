@@ -1,0 +1,117 @@
+export default function StatusCard({ hasil, masukan, status }) {
+  const IconStatus = status.ikon;
+  const valid = hasil?.valid === true;
+  const durasi = valid ? Number(hasil.durasiHari) : null;
+
+  const persentaseBar =
+    durasi == null
+      ? 0
+      : Math.min(100, Math.max(0, (durasi / 10) * 100));
+
+  let pesanStatus = status.pesan;
+
+  if (valid && masukan?.kondisi === "Tidak Berfungsi") {
+    pesanStatus =
+      "Sumber air utama dilaporkan tidak berfungsi. Karena itu, status akhir ditetapkan sebagai Mode Krisis meskipun masih terdapat cadangan air.";
+  } else if (
+    valid &&
+    masukan?.kondisi === "Terbatas" &&
+    hasil.statusDurasi === "Aman / Relatif Mencukupi"
+  ) {
+    pesanStatus =
+      "Durasi cadangan air sebenarnya lebih dari 3 hari. Namun, sumber air utama sedang terbatas sehingga status akhir ditetapkan sebagai Waspada.";
+  } else if (
+    valid &&
+    masukan?.kondisi === "Belum diketahui"
+  ) {
+    pesanStatus =
+      "Perhitungan durasi cadangan tetap tersedia, tetapi status akhir belum dapat ditentukan karena kondisi sumber air utama belum diketahui.";
+  }
+
+  return (
+    <section
+      className={`self-start rounded-[28px] border-2 p-6 shadow-soft sm:p-8 ${status.panel}`}
+      aria-live="polite"
+    >
+      <div className="flex flex-wrap items-center gap-3">
+        <span
+          className={`grid size-12 place-items-center rounded-2xl ${status.ikonBg}`}
+        >
+          <IconStatus className="size-6 text-aira-primary" />
+        </span>
+
+        <span
+          className={`rounded-full px-4 py-2 text-sm font-semibold ${status.chip}`}
+        >
+          {status.label}
+        </span>
+      </div>
+
+      <h2 className="mt-6 font-heading text-2xl font-bold leading-snug text-aira-primary sm:text-3xl">
+        {status.judul}
+      </h2>
+
+      <div className="mt-7 flex flex-wrap items-end gap-3">
+        <span className="font-heading text-6xl font-extrabold leading-none text-aira-primary sm:text-7xl">
+          {durasi == null
+            ? "—"
+            : durasi.toLocaleString("id-ID", {
+                maximumFractionDigits: 2,
+              })}
+        </span>
+
+        <span className="pb-2 text-base text-aira-text/75 sm:text-lg">
+          hari estimasi ketahanan
+        </span>
+      </div>
+
+      <div
+        className="mt-6 h-3.5 overflow-hidden rounded-full bg-white/80"
+        role="img"
+        aria-label={
+          durasi == null
+            ? "Durasi ketahanan air belum tersedia"
+            : `Estimasi ketahanan air ${durasi} hari`
+        }
+      >
+        <div
+          className={`h-full rounded-full transition-all duration-700 ${status.bar}`}
+          style={{ width: `${persentaseBar}%` }}
+        />
+      </div>
+
+      <div className="mt-2 flex justify-between text-xs text-aira-text/65">
+        <span>0 hari</span>
+        <span>1 hari</span>
+        <span>3 hari</span>
+        <span>10+ hari</span>
+      </div>
+
+      <p className="mt-6 leading-relaxed text-aira-text/85">
+        {pesanStatus}
+      </p>
+
+      {!valid && (
+        <div
+          className="mt-5 rounded-2xl border border-aira-peach/50 bg-white/80 p-4 text-sm text-aira-danger-dark"
+          role="alert"
+        >
+          <p className="font-semibold">
+            Data yang perlu diperbaiki:
+          </p>
+
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            {(hasil.errors || []).map((error, index) => (
+              <li key={`${error}-${index}`}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <p className="mt-5 text-xs leading-relaxed text-aira-text/60">
+        Hasil merupakan estimasi berdasarkan asumsi kebutuhan air harian.
+        Angka ini bukan jaminan ketersediaan maupun keamanan kualitas air minum.
+      </p>
+    </section>
+  );
+} 
