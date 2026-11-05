@@ -38,6 +38,18 @@ export async function register(formData) {
 
   const supabase = await createClient();
 
+  // 1. Cek apakah email sudah terdaftar di public.users
+  const { data: existingUser } = await supabase
+    .from("users")
+    .select("email")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (existingUser) {
+    return { error: "Email sudah terdaftar. Silakan gunakan email lain atau masuk." };
+  }
+
+  // 2. Jalankan pendaftaran ke Supabase Auth
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -50,6 +62,11 @@ export async function register(formData) {
 
   if (error) {
     return { error: error.message };
+  }
+
+  // 3. Tangkap proteksi bawaan Supabase (identities kosong = email sudah terdaftar di auth.users)
+  if (data.user && data.user.identities && data.user.identities.length === 0) {
+    return { error: "Email sudah terdaftar. Silakan gunakan email lain atau masuk." };
   }
 
   if (!data.session) {
@@ -111,14 +128,16 @@ export async function logout() {
   redirect("/masuk");
 }
 
-// RESET / LUPA PASSWORD
+// RESET / LUPA PASSWORD (TANPA BARRIER RLS PUBLIC.USERS)
 export async function resetPassword(formData) {
   const email = String(formData.get("email") || "").trim().toLowerCase();
 
+  // 1. Validasi Input Kosong
   if (!email) {
     return { error: "Email wajib diisi." };
   }
 
+  // 2. Validasi Format Email
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return { error: "Format email tidak valid." };
@@ -126,6 +145,7 @@ export async function resetPassword(formData) {
 
   const supabase = await createClient();
 
+  // 3. Langsung kirim permintaan reset via Supabase Auth
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/masuk/reset-password`,
   });
@@ -134,5 +154,6 @@ export async function resetPassword(formData) {
     return { error: error.message };
   }
 
+  // Supabase Auth sukses memproses permintaan
   return { success: "Tautan reset kata sandi telah dikirim ke email kamu." };
 }
