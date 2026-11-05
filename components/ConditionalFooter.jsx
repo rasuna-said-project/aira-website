@@ -1,4 +1,3 @@
-
 "use client";
 
 import { usePathname } from "next/navigation";
@@ -15,5 +14,5 @@ export default function ConditionalFooter() {
     return null;
   }
 
-  return <Footer />;
-} 
+  return <Footer waveFill={pathname === "/" ? "#F6F1E9" : undefined} />;
+}
