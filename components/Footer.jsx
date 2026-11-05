@@ -1,4 +1,3 @@
-
 import Image from "next/image";
 import Link from "next/link";
 
@@ -41,8 +40,8 @@ const footerGroups = [
   },
 ];
 
-// Wave decoration
-function FooterWave() {
+// Wave decoration 
+function FooterWave({ fill }) {
   return (
     <div
       className="bg-aira-primary leading-0"
@@ -55,7 +54,7 @@ function FooterWave() {
       >
         <path
           d="M0 0h1440v30C1260 80 1080 80 900 46S540 0 360 28 90 70 0 56z"
-          fill="#F9FBFB"
+          fill={fill}
         />
       </svg>
     </div>
@@ -85,11 +84,11 @@ function FooterBrand() {
 }
 
 // Main footer
-export default function Footer() {
+export default function Footer({ waveFill = "#F9FBFB" }) {
   return (
     <>
       {/* Wave transition */}
-      <FooterWave />
+      <FooterWave fill={waveFill} />
 
       <footer className="bg-aira-primary text-white">
 
