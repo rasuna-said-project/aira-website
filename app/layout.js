@@ -37,13 +37,28 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="id">
-      <body
-        className={`${plusJakartaSans.variable} ${inter.variable} bg-aira-bg text-aira-text font-body min-h-screen flex flex-col justify-between antialiased`}
-      >
-        <Navbar />
-        <main className="grow">{children}</main>
-        <ConditionalFooter />
-      </body>
-    </html>
+      
+    <body
+      className={`
+      ${plusJakartaSans.variable}
+      ${inter.variable}
+      min-h-dvh
+      flex flex-col
+     bg-aira-bg
+     text-aira-text
+      font-body
+      antialiased
+    `}
+>
+  <Navbar />
+
+    <main className="w-full min-w-0 flex-1">
+       {children}
+     </main>
+
+      <ConditionalFooter />
+    </body>
+
+  </html>
   );
 }

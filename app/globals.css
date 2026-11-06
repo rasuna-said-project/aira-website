@@ -153,32 +153,53 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   html {
     overflow-x: clip;
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
   }
+
   body {
     @apply bg-background text-foreground font-sans;
     -webkit-font-smoothing: antialiased;
     overflow-x: clip;
+    min-width: 320px;
   }
+
   h1,
   h2,
   h3,
   h4 {
     @apply font-heading;
   }
+
+  img,
+  video {
+    max-width: 100%;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
   ::selection {
     background: var(--color-aira-sage);
   }
+
   :focus-visible {
     outline: 3px solid var(--color-aira-secondary);
     outline-offset: 2px;
   }
+
   input[type="range"] {
     accent-color: var(--color-aira-primary);
   }

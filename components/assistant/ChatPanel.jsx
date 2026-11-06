@@ -15,13 +15,16 @@ export default function ChatPanel({
   return (
     <section
       className="
-    flex min-h-[320px] flex-1 flex-col
-    overflow-y-auto overscroll-contain
-    rounded-[24px] border border-aira-primary/5
-   bg-aira-sand p-4 shadow-soft
-    sm:min-h-[420px]
-    sm:rounded-[28px] sm:p-6
-"
+      mt-5 flex min-h-[320px] flex-1 flex-col
+      overflow-y-auto overscroll-contain
+      rounded-[24px]
+      border border-aira-primary/5
+     bg-aira-sand
+      p-4 shadow-soft
+      sm:min-h-[420px]
+      sm:rounded-[28px]
+      sm:p-6
+    "
       role="log"
       aria-label="Percakapan AIRA Assistant"
       aria-live="polite"
@@ -62,4 +65,4 @@ export default function ChatPanel({
       </div>
     </section>
   );
-}
+} 

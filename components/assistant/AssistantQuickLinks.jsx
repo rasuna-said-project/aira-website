@@ -10,8 +10,12 @@ const icons = {
 
 export default function AssistantQuickLinks() {
   return (
-    <nav
-      className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-2"
+      <nav
+        className="
+        mt-3 flex w-full flex-wrap
+        items-center justify-center
+        gap-x-5 gap-y-2
+  "
       aria-label="Fitur AIRA lainnya"
     >
       {ASSISTANT_LINKS.map((item) => {
