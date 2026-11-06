@@ -16,10 +16,8 @@ import {
   INPUT_AWAL,
   KONDISI_SUMBER_AIR,
   MAX_ANGGOTA,
-  MAX_KAPASITAS_LITER,
   MAX_LUAS_ATAP_M2,
   MHM_PER_ORANG,
-  MIN_ANGGOTA,
   SUMBER_AIR,
   hitungVolumeSaatIni,
   validasiInput,
@@ -38,7 +36,8 @@ export default function KalkulatorForm() {
 
   const set = (key, val) => setValue((current) => ({ ...current, [key]: val }));
   const { errors } = validasiInput(value);
-  const kapasitasError = touched || value.kapasitas !== "" ? errors.kapasitas : undefined;
+  const kapasitasError =
+    touched || (value.kapasitas !== "" && value.kapasitas !== "0") ? errors.kapasitas : undefined;
   const luasAtapError = value.luasAtap !== "" ? errors.luasAtap : undefined;
 
   const volume = hitungVolumeSaatIni(value.kapasitas, value.persen);
@@ -52,7 +51,9 @@ export default function KalkulatorForm() {
     setValue((current) => ({
       ...current,
       anggota: n,
-      anggotaMhm: current.mhm ? Math.max(1, Math.min(current.anggotaMhm, n)) : 0,
+      // Tanpa anggota, MHM dimatikan. Jika tidak, jumlah anggota MHM tidak boleh melebihi anggota keluarga.
+      mhm: n === 0 ? false : current.mhm,
+      anggotaMhm: n === 0 || !current.mhm ? 0 : Math.max(1, Math.min(current.anggotaMhm, n)),
     }));
 
   const ubahMhm = () =>
@@ -121,11 +122,15 @@ export default function KalkulatorForm() {
             </FieldLabel>
             <Stepper
               value={value.anggota}
-              min={MIN_ANGGOTA}
+              min={0}
               max={MAX_ANGGOTA}
               label="Jumlah anggota keluarga"
               onChange={ubahAnggota}
+              editable
             />
+            {value.anggota === 0 && (
+              <p className="mt-2 text-sm text-aira-text/65">Isi minimal 1 anggota keluarga.</p>
+            )}
           </div>
 
           <fieldset className="space-y-4">
@@ -176,12 +181,15 @@ export default function KalkulatorForm() {
                 Kapasitas Tandon / Penampungan (Liter)
               </FieldLabel>
               <Input
-                type="number"
-                min={0}
-                max={MAX_KAPASITAS_LITER}
+                type="text"
                 inputMode="numeric"
+                autoComplete="off"
                 value={value.kapasitas}
-                onChange={(e) => set("kapasitas", e.target.value)}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => set("kapasitas", e.target.value.replace(/\D/g, "").replace(/^0+(?=\d)/, ""))}
+                onBlur={() => {
+                  if (value.kapasitas === "") set("kapasitas", "0");
+                }}
                 aria-invalid={!!kapasitasError}
                 placeholder="Contoh: 1000"
                 className={`${kolom} aria-invalid:border-aira-peach`}
@@ -242,8 +250,9 @@ export default function KalkulatorForm() {
                 role="switch"
                 aria-checked={value.mhm}
                 aria-label="Sertakan kebutuhan MHM"
+                disabled={value.anggota === 0}
                 onClick={ubahMhm}
-                className={`relative h-8 w-14 shrink-0 rounded-full transition-colors ${
+                className={`relative h-8 w-14 shrink-0 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
                   value.mhm ? "bg-aira-primary" : "bg-aira-text/25"
                 }`}
               >

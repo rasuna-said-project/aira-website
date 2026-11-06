@@ -28,11 +28,11 @@ export const KONDISI_SUMBER_AIR = ["Normal", "Terbatas", "Tidak Berfungsi", "Bel
 // Nilai awal formulir.
 export const INPUT_AWAL = {
   lokasi: "",
-  anggota: 4,
+  anggota: 1,
   sumberAir: SUMBER_AIR[0],
   kondisi: "Normal",
-  kapasitas: "1000",
-  persen: 45,
+  kapasitas: "0",
+  persen: 0,
   mhm: false,
   anggotaMhm: 0,
   luasAtap: "",
