@@ -81,14 +81,14 @@ export default function KalkulatorForm() {
   return (
     <div className="relative min-h-[calc(100vh-72px)] overflow-hidden bg-aira-bg">
       <div
-        className="absolute -right-24 -top-20 size-[360px] rounded-[55%_45%_40%_60%] bg-aira-sage/40 blur-2xl"
+        className="absolute -right-24 -top-20 size-90 rounded-[55%_45%_40%_60%] bg-aira-sage/40 blur-2xl"
         aria-hidden="true"
       />
       <div
-        className="absolute -left-24 bottom-0 size-[320px] rounded-[40%_60%_55%_45%] bg-aira-peach/25 blur-2xl"
+        className="absolute -left-24 bottom-0 size-80 rounded-[40%_60%_55%_45%] bg-aira-peach/25 blur-2xl"
         aria-hidden="true"
       />
-      <div className="relative mx-auto max-w-[720px] px-4 py-10 sm:px-5 sm:py-16">
+      <div className="relative mx-auto max-w-180 px-4 py-10 sm:px-5 sm:py-16">
         <div className="mb-8 text-center">
           <h1 className="font-heading text-3xl font-bold leading-tight text-aira-primary sm:text-[2.5rem]">
             Kalkulator Ketahanan Air
@@ -137,7 +137,7 @@ export default function KalkulatorForm() {
               <select
                 value={value.sumberAir}
                 onChange={(e) => set("sumberAir", e.target.value)}
-                className="h-[52px] w-full rounded-2xl border border-aira-primary/20 bg-white px-4 text-base transition-colors focus:border-aira-primary focus:outline-none"
+                className="h-13 w-full rounded-2xl border border-aira-primary/20 bg-white px-4 text-base transition-colors focus:border-aira-primary focus:outline-none"
               >
                 {SUMBER_AIR.map((s) => (
                   <option key={s}>{s}</option>
@@ -156,7 +156,7 @@ export default function KalkulatorForm() {
                       role="radio"
                       aria-checked={aktif}
                       onClick={() => set("kondisi", k)}
-                      className={`inline-flex min-h-[48px] items-center gap-2 rounded-full border px-5 py-2.5 font-medium transition-colors ${
+                      className={`inline-flex min-h-12 items-center gap-2 rounded-full border px-5 py-2.5 font-medium transition-colors ${
                         aktif
                           ? "border-aira-primary bg-aira-primary text-white"
                           : "border-aira-primary/25 bg-white text-aira-text hover:bg-aira-primary/10"
@@ -256,7 +256,7 @@ export default function KalkulatorForm() {
             </div>
             {value.mhm && (
               <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-aira-text/10 pt-5">
-                <span className="max-w-[300px] text-[15px] font-medium">
+                <span className="max-w-75 text-[15px] font-medium">
                   Jumlah anggota keluarga yang sedang mengalami menstruasi
                 </span>
                 <Stepper

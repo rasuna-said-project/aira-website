@@ -10,6 +10,7 @@ import StatusCard from "@/components/kalkulator/hasil/StatusCard";
 import RingkasanKebutuhan from "@/components/kalkulator/hasil/RingkasanKebutuhan";
 import EstimasiPanenHujan from "@/components/kalkulator/hasil/EstimasiPanenHujan";
 import RekomendasiCard from "@/components/kalkulator/hasil/RekomendasiCard";
+import PenjelasanAira from "@/components/kalkulator/hasil/PenjelasanAira";
 import HasilActions from "@/components/kalkulator/hasil/HasilActions";
 
 import { ambilStatusTampilan } from "@/components/kalkulator/hasil/StatusConfig";
@@ -24,7 +25,7 @@ export default function HasilSementara() {
   if (!hasil) {
     return (
       <main className="min-h-[calc(100vh-72px)] bg-aira-bg px-4 py-16">
-        <div className="mx-auto max-w-[600px] rounded-[28px] bg-white p-8 text-center shadow-soft sm:p-10">
+        <div className="mx-auto max-w-150 rounded-[28px] bg-white p-8 text-center shadow-soft sm:p-10">
           <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-aira-sage/30">
             <Droplets className="size-8 text-aira-primary" />
           </span>
@@ -40,7 +41,7 @@ export default function HasilSementara() {
 
           <Link
             href="/kalkulator-air"
-            className="mt-7 inline-flex min-h-[52px] items-center justify-center rounded-full bg-aira-primary px-7 font-semibold text-white transition-colors hover:bg-aira-primary-dark"
+            className="mt-7 inline-flex min-h-13 items-center justify-center rounded-full bg-aira-primary px-7 font-semibold text-white transition-colors hover:bg-aira-primary-dark"
           >
             Buka Kalkulator
           </Link>
@@ -54,7 +55,7 @@ export default function HasilSementara() {
 
   return (
     <main className="min-h-[calc(100vh-72px)] bg-aira-bg">
-      <div className="mx-auto max-w-[1100px] px-4 py-10 sm:px-5 sm:py-14">
+      <div className="mx-auto max-w-275 px-4 py-10 sm:px-5 sm:py-14">
         <HasilHeader />
 
         <div className="mt-8 grid gap-6 lg:grid-cols-12">
@@ -80,7 +81,10 @@ export default function HasilSementara() {
               masukan={masukan}
               hasil={hasil}
               status={status}
+              statusKey={statusKey}
             />
+
+            <PenjelasanAira hasil={hasil} masukan={masukan} />
 
             <HasilActions statusKey={statusKey} />
           </aside>

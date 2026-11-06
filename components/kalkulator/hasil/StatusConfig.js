@@ -15,62 +15,62 @@ export const STATUS_TAMPILAN = {
     ikonBg: "bg-white",
     bar: "bg-aira-primary",
     pesan:
-      "Cadangan air diperkirakan dapat memenuhi kebutuhan rumah tangga selama lebih dari 3 hari. Tetap gunakan air secara bijak dan pantau persediaan secara berkala.",
+      "Cadangan diperkirakan bertahan lebih dari 3 hari pada tingkat pemakaian saat ini. Tetap jaga kebiasaan hemat dan pantau secara berkala.",
     rekomendasi: [
-      "Catat volume air dalam tandon secara berkala.",
-      "Pertahankan kebiasaan hemat air dalam aktivitas sehari-hari.",
-      "Siapkan penampungan tambahan sebagai antisipasi perubahan kondisi.",
+      "Catat volume tandon setiap minggu",
+      "Siapkan wadah penampung air hujan",
+      "Bagikan informasi titik air ke tetangga",
     ],
   },
 
   waspada: {
     label: "Waspada",
-    judul: "Cadangan air mulai perlu diperhatikan",
+    judul: "Cadangan air mulai menipis",
     ikon: AlertTriangle,
     panel: "border-[#E8C77D] bg-[#FDF4DF]",
     chip: "bg-[#F6DFA8] text-[#74520C]",
     ikonBg: "bg-white",
     bar: "bg-[#D99A1E]",
     pesan:
-      "Cadangan air diperkirakan dapat memenuhi kebutuhan selama 1 sampai 3 hari. Mulailah menghemat penggunaan air dan persiapkan sumber air alternatif.",
+      "Cadangan diperkirakan bertahan antara 1 sampai 3 hari. Mulailah menghemat dan siapkan sumber air alternatif.",
     rekomendasi: [
-      "Prioritaskan penggunaan air untuk minum, memasak, dan kebersihan.",
-      "Tampung air ketika sumber air masih tersedia.",
-      "Periksa titik air alternatif sebelum persediaan habis.",
+      "Prioritaskan air untuk minum, memasak, dan kebersihan",
+      "Gunakan ulang air bilasan untuk menyiram atau menyiram toilet",
+      "Cek titik air terdekat sebelum cadangan habis",
     ],
   },
 
   krisis: {
     label: "Mode Krisis",
-    judul: "Segera persiapkan sumber air tambahan",
+    judul: "Segera cari sumber air tambahan",
     ikon: Siren,
     panel: "border-aira-peach bg-aira-peach/20",
     chip: "bg-aira-peach text-[#713421]",
     ikonBg: "bg-white",
     bar: "bg-[#D4573A]",
     pesan:
-      "Cadangan air diperkirakan hanya dapat memenuhi kebutuhan kurang dari 1 hari. Utamakan kebutuhan esensial dan segera cari sumber air alternatif.",
+      "Cadangan diperkirakan bertahan kurang dari 1 hari. Batasi pemakaian ke kebutuhan esensial dan carilah titik air alternatif hari ini.",
     rekomendasi: [
-      "Batasi penggunaan air untuk kebutuhan yang paling esensial.",
-      "Hubungi RT/RW, tetangga, atau pengelola sumber air setempat.",
-      "Cari titik air alternatif untuk memenuhi kebutuhan rumah tangga.",
+      "Batasi pemakaian ke kebutuhan dasar (minum dan sanitasi)",
+      "Hubungi tetangga, RT/RW, atau layanan air darurat setempat",
+      "Rebus atau olah air sebelum diminum",
     ],
   },
 
   belum: {
     label: "Belum Dapat Ditentukan",
-    judul: "Status ketahanan air belum dapat ditentukan",
+    judul: "Status belum dapat ditentukan",
     ikon: HelpCircle,
     panel: "border-[#D9C9A8] bg-aira-sand",
     chip: "bg-white text-aira-text",
     ikonBg: "bg-white",
     bar: "bg-aira-text/30",
     pesan:
-      "Status ketahanan air belum dapat ditentukan berdasarkan informasi yang tersedia. Periksa kembali data atau pastikan kondisi sumber air utama Anda.",
+      "Status belum dapat ditentukan dari data yang tersedia.",
     rekomendasi: [
-      "Periksa kembali data yang dimasukkan pada kalkulator.",
-      "Pastikan kondisi sumber air utama sudah diketahui.",
-      "Sementara itu, periksa ketersediaan titik air alternatif.",
+      "Periksa kembali data pada kalkulator",
+      "Pilih kondisi sumber air bila belum diketahui",
+      "Sementara itu, cek titik air terdekat",
     ],
   },
 };

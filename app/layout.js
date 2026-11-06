@@ -25,9 +25,13 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+// TAMBAHKAN ICONS DI DALAM METADATA DI BAWAH INI:
 export const metadata = {
   title: "AIRA - Smart Water Resilience for Every Woman",
   description: "Solusi Digital Ketahanan Air, Sanitasi, dan Respons Krisis",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -36,10 +40,10 @@ export default function RootLayout({ children }) {
       <body
         className={`${plusJakartaSans.variable} ${inter.variable} bg-aira-bg text-aira-text font-body min-h-screen flex flex-col justify-between antialiased`}
       >
-    <Navbar />
-      <main className="grow">{children}</main>
-      <ConditionalFooter />
+        <Navbar />
+        <main className="grow">{children}</main>
+        <ConditionalFooter />
       </body>
     </html>
   );
-} 
+}
