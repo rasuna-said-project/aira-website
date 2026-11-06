@@ -10,6 +10,7 @@ import StatusCard from "@/components/kalkulator/hasil/StatusCard";
 import RingkasanKebutuhan from "@/components/kalkulator/hasil/RingkasanKebutuhan";
 import EstimasiPanenHujan from "@/components/kalkulator/hasil/EstimasiPanenHujan";
 import RekomendasiCard from "@/components/kalkulator/hasil/RekomendasiCard";
+import PenjelasanAira from "@/components/kalkulator/hasil/PenjelasanAira";
 import HasilActions from "@/components/kalkulator/hasil/HasilActions";
 
 import { ambilStatusTampilan } from "@/components/kalkulator/hasil/StatusConfig";
@@ -80,7 +81,10 @@ export default function HasilSementara() {
               masukan={masukan}
               hasil={hasil}
               status={status}
+              statusKey={statusKey}
             />
+
+            <PenjelasanAira hasil={hasil} masukan={masukan} />
 
             <HasilActions statusKey={statusKey} />
           </aside>

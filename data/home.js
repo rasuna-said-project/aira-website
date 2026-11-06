@@ -19,15 +19,9 @@ export const HERO_CONTENT = {
   secondaryCta: { label: "Cari Titik Air", href: "/navigasi-air" },
   note: "Gratis dan terbuka untuk semua. Tidak perlu login untuk menghitung.",
   image: {
-  src: "/images/hero-perempuan-desa.jpg",
-  alt: "Perempuan bekerja di bawah sinar matahari di desa pedesaan",
-  credit: {
-    photographer: "Nama Fotografer",            // isi dari halaman Unsplash
-    photographerUrl: "https://unsplash.com/@username",
-    source: "Unsplash",
-    sourceUrl: "https://unsplash.com/photos/ID-FOTO",
+    src: "/images/hero-perempuan-desa.jpg",
+    alt: "Perempuan bekerja di bawah sinar matahari di desa pedesaan",
   },
-}, 
   statusCard: {
     title: "Cadangan 5,2 hari",
     subtitle: "Keluarga 4 orang, status Waspada",

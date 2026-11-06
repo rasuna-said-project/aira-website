@@ -1,3 +1,22 @@
+const formatWaktuWib = (iso) => {
+  const d = new Date(iso);
+  if (!iso || Number.isNaN(d.getTime())) return null;
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+      timeZone: "Asia/Jakarta",
+    })
+      .formatToParts(d)
+      .map((x) => [x.type, x.value])
+  );
+  return `${p.day} ${p.month} ${p.year}, ${p.hour}.${p.minute} WIB`;
+};
+
 export default function StatusCard({ hasil, masukan, status }) {
   const IconStatus = status.ikon;
   const valid = hasil?.valid === true;
@@ -12,20 +31,20 @@ export default function StatusCard({ hasil, masukan, status }) {
 
   if (valid && masukan?.kondisi === "Tidak Berfungsi") {
     pesanStatus =
-      "Sumber air utama dilaporkan tidak berfungsi. Karena itu, status akhir ditetapkan sebagai Mode Krisis meskipun masih terdapat cadangan air.";
+      "Sumber air utama tidak berfungsi, sehingga status tetap Mode Krisis meskipun cadangan masih tersedia.";
   } else if (
     valid &&
     masukan?.kondisi === "Terbatas" &&
     hasil.statusDurasi === "Aman / Relatif Mencukupi"
   ) {
     pesanStatus =
-      "Durasi cadangan air sebenarnya lebih dari 3 hari. Namun, sumber air utama sedang terbatas sehingga status akhir ditetapkan sebagai Waspada.";
+      "Durasi cadangan lebih dari 3 hari, tetapi kondisi sumber air terbatas sehingga status akhir dibatasi pada Waspada.";
   } else if (
     valid &&
     masukan?.kondisi === "Belum diketahui"
   ) {
     pesanStatus =
-      "Perhitungan durasi cadangan tetap tersedia, tetapi status akhir belum dapat ditentukan karena kondisi sumber air utama belum diketahui.";
+      "Kondisi sumber air utama belum diketahui, sehingga status akhir belum dapat ditentukan. Pilih kondisinya pada kalkulator lalu hitung ulang.";
   }
 
   return (
@@ -112,6 +131,11 @@ export default function StatusCard({ hasil, masukan, status }) {
         Hasil merupakan estimasi berdasarkan asumsi kebutuhan air harian.
         Angka ini bukan jaminan ketersediaan maupun keamanan kualitas air minum.
       </p>
+      {valid && formatWaktuWib(hasil.waktuPerhitunganUtc) && (
+        <p className="mt-1 text-xs text-aira-text/60">
+          Dihitung pada {formatWaktuWib(hasil.waktuPerhitunganUtc)}
+        </p>
+      )}
     </section>
   );
 } 

@@ -47,6 +47,20 @@ export default function EstimasiPanenHujan({ hasil, masukan }) {
             </span>
           </p>
 
+          {Number(hasil?.kebutuhanHarianLiter) > 0 && (
+            <p className="mt-2 text-sm text-aira-text/75">
+              Setara sekitar{" "}
+              <strong>
+                {(potensi / hasil.kebutuhanHarianLiter).toLocaleString(
+                  "id-ID",
+                  { minimumFractionDigits: 1, maximumFractionDigits: 1 }
+                )}{" "}
+                hari
+              </strong>{" "}
+              kebutuhan air rumah tangga Anda.
+            </p>
+          )}
+
           {wilayah && (
             <p className="mt-2 text-sm text-aira-text/75">
               Berdasarkan wilayah {wilayah}.
