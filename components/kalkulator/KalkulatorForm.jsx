@@ -209,8 +209,7 @@ export default function KalkulatorForm() {
                   className="rounded-full bg-aira-secondary/15 px-3.5 py-1.5 font-heading font-bold text-aira-primary-dark"
                   aria-live="polite"
                 >
-                  {value.persen}%{" "}
-                  {adaKapasitas ? `≈ ${volume.toLocaleString("id-ID", { maximumFractionDigits: 2 })} Liter` : ""}
+                  {value.persen}% ≈ {volume.toLocaleString("id-ID", { maximumFractionDigits: 2 })} Liter
                 </span>
               </div>
               <input
