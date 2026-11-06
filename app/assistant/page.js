@@ -1,9 +1,11 @@
-export default function Assistant() {
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold text-aira-primary">
-        Halaman Chatbot, Tanya Jawab, Panduan Air/Sanitasi & Krisis
-      </h1>
-    </div>
-  );
-}
+import AssistantClient from "@/components/assistant/AssistantClient";
+
+export const metadata = {
+  title: "AIRA Assistant | Smart Water Resilience",
+  description:
+    "Asisten digital AIRA untuk membantu perempuan dan keluarga memahami ketahanan air, penghematan air, kebersihan menstruasi, dan sanitasi.",
+};
+
+export default function AssistantPage() {
+  return <AssistantClient />;
+} 
