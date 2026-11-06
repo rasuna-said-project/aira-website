@@ -29,6 +29,10 @@ export default function Navbar() {
   if (pathname === "/") window.scrollTo({ top: 0, behavior: "smooth" });
 }; 
 
+if (pathname === "/assistant") {
+  return null;
+}
+
   return (
     <header className="sticky top-0 z-40 border-b border-aira-primary/10 bg-aira-bg/90 backdrop-blur">
       <div className="mx-auto flex h-18 max-w-310 items-center justify-between px-5">
