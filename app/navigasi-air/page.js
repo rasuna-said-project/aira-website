@@ -1,9 +1,9 @@
+import DaftarTitikAir from "@/components/navigasi/DaftarTitikAir";
+
+export const metadata = {
+  title: "Daftar Titik Air - AIRA",
+};
+
 export default function NavigasiAir() {
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold text-aira-primary">
-        Halaman Daftar Titik Air dan Search/Filter
-      </h1>
-    </div>
-  );
+  return <DaftarTitikAir />;
 }
