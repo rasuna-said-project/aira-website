@@ -21,14 +21,15 @@ export default function AssistantClient() {
   } = useAssistantChat();
 
   return (
-    <main className="min-h-[100svh] bg-aira-bg">
+    <section className="w-full min-w-0 bg-aira-bg">
       <div
-      className="
-      mx-auto flex min-h-[100svh]
-      w-full max-w-[820px] flex-col
-      px-4 py-5
-      sm:px-5 sm:py-8
-      "
+        className="
+          mx-auto flex w-full max-w-[820px]
+          min-h-[min(760px,100svh)]
+          flex-col gap-0
+          px-4 py-5
+          sm:px-5 sm:py-8
+        "
       >
         {/* HEADER */}
         <AssistantHeader />
@@ -57,6 +58,6 @@ export default function AssistantClient() {
         {/* INFORMASI */}
         <AssistantNotice />
       </div>
-    </main>
+    </section>
   );
-} 
+}

@@ -10,17 +10,20 @@ export default function ChatInput({
 }) {
 	return (
 		<form
-			onSubmit={(event) => {
-				event.preventDefault();
-				onSubmit();
-			}}
-			className="
-				mt-4 flex items-center gap-2
-				rounded-full border border-aira-primary/10
-				bg-white p-1.5 pl-5 shadow-soft
-				sm:pl-6
-			"
-		>
+  			onSubmit={(event) => {
+    		event.preventDefault();
+    		onSubmit();
+	}}
+  		className="
+    		mt-4 flex w-full min-w-0
+    		items-center gap-2
+   		 rounded-full
+    		border border-aira-primary/10
+   		 bg-white p-1.5 pl-4
+    		shadow-soft
+    		sm:pl-6
+  		"
+	>
 			<input
 				type="text"
 				value={value}
