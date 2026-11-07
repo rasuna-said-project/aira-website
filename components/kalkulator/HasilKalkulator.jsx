@@ -15,13 +15,12 @@ import HasilActions from "@/components/kalkulator/hasil/HasilActions";
 
 import { ambilStatusTampilan } from "@/components/kalkulator/hasil/StatusConfig";
 
-export default function HasilSementara() {
+export default function HasilKalkulator() {
   const data = useHasilKalkulator();
 
   const hasil = data?.hasil;
   const masukan = data?.masukan;
 
-  // Tampilan ketika belum ada hasil kalkulasi.
   if (!hasil) {
     return (
       <main className="min-h-[calc(100vh-72px)] bg-aira-bg px-4 py-16">
@@ -58,38 +57,42 @@ export default function HasilSementara() {
       <div className="mx-auto max-w-275 px-4 py-10 sm:px-5 sm:py-14">
         <HasilHeader />
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-12">
-          {/* Kolom kiri */}
-          <div className="flex flex-col gap-6 lg:col-span-7">
-            <StatusCard
-              hasil={hasil}
-              masukan={masukan}
-              status={status}
-            />
+        {/* BARIS 1 (lebar penuh): status + angka kebutuhan.
+            Pembungkus ini memaksa setiap anak selebar kolom, sehingga
+            StatusCard dan RingkasanKebutuhan sejajar di kiri dan kanan. */}
+        <div className="mt-8 flex w-full flex-col gap-4 *:w-full *:max-w-none!">
+          <StatusCard hasil={hasil} masukan={masukan} status={status} />
+          <RingkasanKebutuhan hasil={hasil} />
+        </div>
 
-            <RingkasanKebutuhan hasil={hasil} />
-          </div>
-
-          {/* Kolom kanan */}
-          <aside className="flex flex-col gap-6 lg:col-span-5">
-            <EstimasiPanenHujan
-              hasil={hasil}
-              masukan={masukan}
-            />
-
+        {/* BARIS 2: langkah (kiri) + alasan & aksi (kanan).
+            Tinggi kedua kolom kini hampir sama. */}
+        <div className="mt-6 grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+          <div className="order-2 lg:order-1 lg:col-span-7">
             <RekomendasiCard
               masukan={masukan}
               hasil={hasil}
               status={status}
               statusKey={statusKey}
             />
+          </div>
 
-            <PenjelasanAira hasil={hasil} masukan={masukan} />
-
+          <aside className="order-1 flex flex-col gap-6 lg:order-2 lg:col-span-5">
+            <PenjelasanAira
+              key={hasil?.waktuPerhitunganUtc}
+              hasil={hasil}
+              masukan={masukan}
+            />
             <HasilActions statusKey={statusKey} />
           </aside>
+        </div>
+
+        {/* BARIS 3: fitur sekunder, lebar penuh di bawah.
+            Tidak lagi membuat kolom kanan jauh lebih panjang dari kiri. */}
+        <div className="mt-6 w-full *:w-full *:max-w-none!">
+          <EstimasiPanenHujan hasil={hasil} masukan={masukan} />
         </div>
       </div>
     </main>
   );
-} 
+}

@@ -1,31 +1,45 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Sparkles } from "lucide-react";
-
 import { mintaPenjelasanAira } from "@/lib/penjelasanAira";
 
-// Kartu opsional. Jika layanan AI gagal, hanya kartu ini yang berubah;
-// status, angka, estimasi hujan, dan langkah yang disarankan tetap tampil.
 export default function PenjelasanAira({ hasil, masukan }) {
   const [state, setState] = useState({ tahap: "memuat", teks: "" });
+  
+  // Mencegah eksekusi ganda dalam satu render
+  const dipanggilRef = useRef(false);
 
   useEffect(() => {
     let batal = false;
 
+    // Ambil identifier unik dari hasil perhitungan
+    const idPerhitungan = hasil?.waktuPerhitunganUtc;
+
+    if (!hasil || !idPerhitungan) return;
+
+    // Panggil AI hanya jika belum pernah dipanggil untuk data perhitungan ini
     mintaPenjelasanAira(hasil, masukan)
       .then((teks) => {
-        if (!batal) setState({ tahap: "siap", teks });
+        if (!batal) {
+          if (teks && teks.trim().length > 0) {
+            setState({ tahap: "siap", teks });
+          } else {
+            setState({ tahap: "gagal", teks: "" });
+          }
+        }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("[PenjelasanAira] Error AI:", err);
         if (!batal) setState({ tahap: "gagal", teks: "" });
       });
 
     return () => {
       batal = true;
     };
-  }, [hasil, masukan]);
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasil?.waktuPerhitunganUtc]);
+  
   return (
     <section className="rounded-[28px] border border-aira-primary/5 bg-white p-6 shadow-soft sm:p-7">
       <div className="flex items-center gap-2">
