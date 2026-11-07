@@ -51,7 +51,7 @@ export default function RegionSelect({ value, onChange }) {
           }
         }}
         placeholder="Pilih Kabupaten / Kota (misal: Gunungkidul)"
-        className="h-[52px] rounded-2xl border-aira-primary/20 bg-white pl-12 pr-11 text-base focus-visible:border-aira-primary focus-visible:ring-aira-secondary/30 md:text-base"
+        className="h-13 rounded-2xl border-aira-primary/20 bg-white pl-12 pr-11 text-base focus-visible:border-aira-primary focus-visible:ring-aira-secondary/30 md:text-base"
       />
       <ChevronDown
         className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-aira-text/50"

@@ -1,4 +1,6 @@
-const formatWaktuWib = (iso) => {
+"use client";
+
+const formatTanggal = (iso) => {
   const d = new Date(iso);
   if (!iso || Number.isNaN(d.getTime())) return null;
   const p = Object.fromEntries(
@@ -6,15 +8,12 @@ const formatWaktuWib = (iso) => {
       day: "numeric",
       month: "long",
       year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
       timeZone: "Asia/Jakarta",
     })
       .formatToParts(d)
       .map((x) => [x.type, x.value])
   );
-  return `${p.day} ${p.month} ${p.year}, ${p.hour}.${p.minute} WIB`;
+  return `${p.day} ${p.month} ${p.year}`;
 };
 
 export default function StatusCard({ hasil, masukan, status }) {
@@ -127,15 +126,14 @@ export default function StatusCard({ hasil, masukan, status }) {
         </div>
       )}
 
+      {/* Rangkuman Disclaimer Ringkas & Tanggal Perhitungan */}
       <p className="mt-5 text-xs leading-relaxed text-aira-text/60">
-        Hasil merupakan estimasi berdasarkan asumsi kebutuhan air harian.
-        Angka ini bukan jaminan ketersediaan maupun keamanan kualitas air minum.
+        Hasil berupa estimasi berdasarkan asumsi kebutuhan harian
+        dan bukan jaminan kualitas air minum.
+        {valid && formatTanggal(hasil.waktuPerhitunganUtc)
+          ? ` Dihitung ${formatTanggal(hasil.waktuPerhitunganUtc)}`
+          : ""} 
       </p>
-      {valid && formatWaktuWib(hasil.waktuPerhitunganUtc) && (
-        <p className="mt-1 text-xs text-aira-text/60">
-          Dihitung pada {formatWaktuWib(hasil.waktuPerhitunganUtc)}
-        </p>
-      )}
     </section>
   );
-} 
+}
