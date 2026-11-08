@@ -34,6 +34,7 @@ export default function Combobox({
   value,
   disabled = false,
   hint,
+  memuat = false,
   emptyText = "Wilayah tidak ditemukan. Periksa ejaan atau kosongkan untuk menampilkan semua wilayah.",
   onSelect,
 }) {
@@ -157,7 +158,7 @@ export default function Combobox({
           aria-label={label}
           className="absolute left-0 right-0 z-20 mt-2 max-h-[260px] overflow-auto rounded-2xl border border-aira-primary/15 bg-white p-1.5 shadow-soft"
         >
-          {loading ? (
+          {loading || memuat ? (
             <li role="presentation" className="px-4 py-3 text-sm text-aira-text/65">
               Memuat daftar...
             </li>
