@@ -1,28 +1,76 @@
+
 "use server";
 
 import { headers } from "next/headers";
 import { jalankanKalkulator } from "@/services/calculatorFormService";
-import { ambilRekomendasi } from "@/services/rekomendasiService";
-import { dapatkanPenjelasanAI, izinkanPermintaan } from "@/services/aiService";
+import {
+  dapatkanPenjelasanAI,
+  izinkanPermintaan,
+} from "@/services/aiService";
 
-// Server Action untuk kartu "Penjelasan AIRA".
-// Hasil dihitung ULANG di server dari `masukan`; hasil kiriman klien tidak dipercaya, jadi klien
-// tidak bisa menyuntikkan angka atau teks ke prompt AI. Mengembalikan { ok, penjelasan } atau
-// { ok: false, alasan }. Tidak pernah melempar error.
+// Server Action untuk kartu Penjelasan AIRA.
+// Hasil selalu dihitung ulang di server.
+// AI hanya menerima konteks hasil kalkulator yang sudah ditetapkan sistem.
 export async function jelaskanHasilAI(masukan) {
   try {
-    const hasil = jalankanKalkulator(masukan ?? {});
-    if (!hasil.valid || hasil.statusKey === "belum") return { ok: false, alasan: "data-belum-valid" };
+    if (
+      !masukan ||
+      typeof masukan !== "object" ||
+      Array.isArray(masukan)
+    ) {
+      return {
+        ok: false,
+        alasan: "data-tidak-valid",
+      };
+    }
 
-    const h = await headers();
-    const klien = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "anonim";
-    if (!izinkanPermintaan(klien)) return { ok: false, alasan: "terlalu-banyak-permintaan" };
+    const hasil = jalankanKalkulator(masukan);
 
-    const { items } = await ambilRekomendasi(masukan, hasil);
-    const { ok, penjelasan, alasan } = await dapatkanPenjelasanAI(hasil, masukan, items);
-    return ok ? { ok: true, penjelasan } : { ok: false, alasan };
+    if (!hasil?.valid || hasil.statusKey === "belum") {
+      return {
+        ok: false,
+        alasan: "data-belum-valid",
+      };
+    }
+
+    const requestHeaders = await headers();
+
+    const klien =
+      requestHeaders.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      requestHeaders.get("x-real-ip") ||
+      "anonim";
+
+    if (!izinkanPermintaan(klien)) {
+      return {
+        ok: false,
+        alasan: "terlalu-banyak-permintaan",
+      };
+    }
+
+    // Tidak memanggil ambilRekomendasi().
+    // Penjelasan AI tidak membutuhkan daftar tindakan.
+    const respons = await dapatkanPenjelasanAI(
+      hasil,
+      masukan
+    );
+
+    if (!respons?.ok) {
+      return {
+        ok: false,
+        alasan: respons?.alasan || "ai-tidak-tersedia",
+      };
+    }
+
+    return {
+      ok: true,
+      penjelasan: respons.penjelasan,
+    };
   } catch (err) {
     console.error("[penjelasan] gagal:", err);
-    return { ok: false, alasan: "kesalahan-server" };
+
+    return {
+      ok: false,
+      alasan: "kesalahan-server",
+    };
   }
 }

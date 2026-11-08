@@ -1,9 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { INITIAL_MESSAGE } from "@/components/assistant/assistant.constants";
-import { getAssistantPreviewResponse } from "@/services/assistantPreviewService";
+import { kirimPesanAssistant } from "@/app/actions/assistant";
 
 export function useAssistantChat() {
   const [messages, setMessages] = useState([
@@ -17,7 +22,7 @@ export function useAssistantChat() {
 
   const endRef = useRef(null);
 
-  // Auto scroll setiap ada pesan baru
+  // Menggeser tampilan ke pesan terbaru.
   useEffect(() => {
     endRef.current?.scrollIntoView({
       behavior: "smooth",
@@ -25,10 +30,12 @@ export function useAssistantChat() {
     });
   }, [messages, loading, error]);
 
-  // Mengirim pertanyaan
   const sendMessage = useCallback(
     async (question = input, options = {}) => {
-      const message = question.trim();
+      const message =
+        typeof question === "string"
+          ? question.trim()
+          : "";
 
       if (!message || loading) return;
 
@@ -38,7 +45,6 @@ export function useAssistantChat() {
       setRetryMessage(message);
 
       // Pesan pengguna hanya ditambahkan sekali.
-      // Saat retry, jangan membuat pesan duplikat.
       if (!isRetry) {
         setMessages((previous) => [
           ...previous,
@@ -54,38 +60,80 @@ export function useAssistantChat() {
       setLoading(true);
 
       try {
-        // Respons simulasi.
-        // Nanti diganti dengan pemanggilan aiService.
-        const response =
-          await getAssistantPreviewResponse(message);
+        // Riwayat diambil dari pesan sebelum permintaan terbaru.
+        // Pesan awal sambutan tidak perlu dikirim ke backend.
+        const history = messages
+          .filter(
+            (item) =>
+              item.id !== "welcome" &&
+              ["user", "assistant"].includes(item.role) &&
+              typeof item.content === "string"
+          )
+          .slice(-6)
+          .map((item) => ({
+            role: item.role,
+            content: item.content,
+          }));
+
+        // Ketika retry, pertanyaan yang gagal sudah ada di riwayat.
+        // Hapus dari history agar tidak terkirim dua kali.
+        if (
+          history.length > 0 &&
+          history[history.length - 1].role === "user" &&
+          history[history.length - 1].content.trim() === message
+        ) {
+          history.pop();
+        }
+
+        const response = await kirimPesanAssistant({
+          question: message,
+          history,
+        });
+
+        if (!response?.ok) {
+          throw new Error(
+            response?.error ||
+              "AIRA Assistant belum dapat menjawab pertanyaan."
+          );
+        }
 
         setMessages((previous) => [
           ...previous,
           {
             id: crypto.randomUUID(),
             role: "assistant",
-            content: response.content,
-            topics: response.topics || [],
+            content: response.answer,
+            mode: response.mode,
+            sources: Array.isArray(response.sources)
+              ? response.sources
+              : [],
           },
         ]);
+
+        setRetryMessage("");
       } catch (err) {
-        console.error("AIRA Assistant error:", err);
+        console.error(
+          "[AIRA Assistant] Gagal mengirim pesan:",
+          err
+        );
 
         setError(
-          "AIRA Assistant sedang mengalami gangguan. Pertanyaan Anda belum terjawab."
+          err?.message ||
+            "AIRA Assistant sedang mengalami gangguan. Pertanyaan Anda belum terjawab."
         );
       } finally {
         setLoading(false);
       }
     },
-    [input, loading]
+    [input, loading, messages]
   );
 
-  // Mengulang pengiriman pesan yang gagal
   const retryMessageSend = useCallback(() => {
     if (!retryMessage || loading) return;
 
-    sendMessage(retryMessage, { retry: true });
+    sendMessage(retryMessage, {
+      retry: true,
+    });
   }, [retryMessage, loading, sendMessage]);
 
   return {
@@ -98,4 +146,4 @@ export function useAssistantChat() {
     sendMessage,
     retryMessageSend,
   };
-} 
+}

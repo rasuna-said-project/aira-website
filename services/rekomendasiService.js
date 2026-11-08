@@ -117,8 +117,13 @@ const yaTidak = (v) => {
 };
 
 // null jika kosong; NaN jika terisi tetapi bukan angka.
-const angka = (v) =>
-  kosong(v) ? null : Number(String(v).trim().replace(",", "."));
+const angka = (v) => {
+  if (kosong(v)) return null;
+
+  const hasil = Number(String(v).trim().replace(",", "."));
+
+  return Number.isFinite(hasil) ? hasil : NaN;
+};
 
 const ATURAN_WAJIB_DIKENAL = new Set([
   "ya",
@@ -556,52 +561,120 @@ export function susunDenganAI({ wajib, nonWajib, jumlah, hasilAI }) {
   }));
 }
 
-export async function ambilRekomendasi(masukan, hasil) {
+
+export async function ambilRekomendasi(
+  masukan,
+  hasil,
+  { pakaiAI = true } = {}
+) {
   const ctx = bangunKonteks(masukan, hasil);
 
   try {
+    // 1. Ambil katalog dari Supabase, cache, atau fallback.
     const { records, sumber } = await ambilKatalog();
+
+    // 2. Susun rekomendasi menggunakan aturan deterministik.
+    // Hasil ini menjadi fallback utama jika AI gagal.
     const aturan = pilihRekomendasi(records, ctx);
 
-    let akhir = { ...aturan, sumberKatalog: sumber, pemilih: "aturan" };
+    let akhir = {
+      ...aturan,
+      sumberKatalog: sumber,
+      pemilih: "aturan",
+    };
 
-    // AI memilih dan mengurutkan tindakan tambahan (opsional, ada fallback ke aturan).
+    // 3. Jangan panggil AI jika tidak diizinkan.
+    // Misalnya, kalkulator meminta hasil langsung tanpa menunggu Gemini.
+    if (!pakaiAI) {
+      return akhir;
+    }
+
+    // 4. AI hanya boleh membantu memilih tindakan tambahan.
+    // AI tidak menentukan status dan tidak mengubah tindakan wajib.
     if (
-      ctx.valid &&
-      ctx.status !== STATUS_TIDAK_DITENTUKAN &&
-      aturan.items.length > 0
+      !ctx.valid ||
+      ctx.status === STATUS_TIDAK_DITENTUKAN ||
+      aturan.items.length === 0
     ) {
-      const kandidat = susunKatalog(records, ctx);
-      const wajib = kandidat.filter((x) => x.wajib);
-      const nonWajib = kandidat.filter((x) => !x.wajib);
-      const jumlah = Math.max(0, BATAS_REKOMENDASI - wajib.length);
+      return akhir;
+    }
 
-      if (jumlah > 0 && nonWajib.length > jumlah) {
-        const hasilAI = await pilihTindakanDenganAI(hasil, masukan, {
+    // 5. Pisahkan tindakan wajib dan tindakan tambahan.
+    const kandidat = susunKatalog(records, ctx);
+
+    const wajib = kandidat.filter((item) => item.wajib);
+    const nonWajib = kandidat.filter((item) => !item.wajib);
+
+    const jumlah = Math.max(
+      0,
+      BATAS_REKOMENDASI - wajib.length
+    );
+
+    // 6. Tidak perlu memanggil AI jika:
+    // - Tidak ada slot tambahan.
+    // - Jumlah kandidat tidak melebihi kebutuhan.
+    if (jumlah === 0 || nonWajib.length <= jumlah) {
+      return akhir;
+    }
+
+    // 7. Pemanggilan AI memiliki try-catch tersendiri.
+    // Jika gagal, rekomendasi aturan tetap digunakan.
+    try {
+      const hasilAI = await pilihTindakanDenganAI(
+        hasil,
+        masukan,
+        {
           wajib,
           kandidat: nonWajib.slice(0, BATAS_KANDIDAT_AI),
           jumlah,
-        });
-
-        if (hasilAI.ok) {
-          akhir = {
-            ...aturan,
-            items: susunDenganAI({ wajib, nonWajib, jumlah, hasilAI }),
-            sumberKatalog: sumber,
-            pemilih: `ai:${hasilAI.model}`,
-          };
-        } else {
-          console.warn(
-            "[rekomendasi] pemilihan AI dilewati, memakai urutan aturan:",
-            hasilAI.alasan
-          );
         }
-      }
-    }
+      );
 
-    return akhir;
+      // 8. Pastikan respons AI memiliki struktur yang diharapkan.
+      const responsValid =
+        hasilAI?.ok === true &&
+        Array.isArray(hasilAI.ids);
+
+      if (!responsValid) {
+        console.warn(
+          "[rekomendasi] Respons AI tidak valid. Menggunakan urutan aturan."
+        );
+
+        return akhir;
+      }
+
+      // 9. Susun ulang tindakan tambahan berdasarkan hasil AI.
+      // Tindakan wajib tetap berada di urutan teratas.
+      const itemsAI = susunDenganAI({
+        wajib,
+        nonWajib,
+        jumlah,
+        hasilAI,
+      });
+
+      akhir = {
+        ...aturan,
+        items: itemsAI,
+        sumberKatalog: sumber,
+        pemilih: `ai:${hasilAI.model || "model-tidak-diketahui"}`,
+      };
+
+      return akhir;
+    } catch (err) {
+      // Error AI tidak boleh menghilangkan hasil rekomendasi aturan.
+      console.warn(
+        "[rekomendasi] Pemilihan AI gagal. Menggunakan urutan aturan:",
+        err?.message || err
+      );
+
+      return akhir;
+    }
   } catch (err) {
-    console.error("[rekomendasi] gagal menyusun rekomendasi:", err);
+    // 10. Penanganan jika proses pengambilan katalog atau penyusunan aturan gagal.
+    console.error(
+      "[rekomendasi] Gagal menyusun rekomendasi:",
+      err
+    );
 
     return {
       status: ctx.status,
