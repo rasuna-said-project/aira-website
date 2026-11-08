@@ -24,7 +24,7 @@ export default function AssistantClient() {
     <section className="w-full min-w-0 bg-aira-bg">
       <div
         className="
-          mx-auto flex w-full max-w-[820px]
+          mx-auto flex w-full max-w-205
           min-h-[min(760px,100svh)]
           flex-col gap-0
           px-4 py-5

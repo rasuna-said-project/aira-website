@@ -3,7 +3,7 @@ import { SUGGESTED_QUESTIONS } from "./assistant.constants";
 
 export default function SuggestedPrompts({ onSelect }) {
   return (
-    <div className="flex flex-wrap gap-2 sm:pl-[52px]">
+    <div className="flex flex-wrap gap-2 sm:pl-13">
       {SUGGESTED_QUESTIONS.map((question) => (
         <button
           key={question}

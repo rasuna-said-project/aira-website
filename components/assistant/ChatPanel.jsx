@@ -15,13 +15,13 @@ export default function ChatPanel({
   return (
     <section
       className="
-      mt-5 flex min-h-[320px] flex-1 flex-col
+      mt-5 flex min-h-80 flex-1 flex-col
       overflow-y-auto overscroll-contain
-      rounded-[24px]
+      rounded-aira-lg
       border border-aira-primary/5
      bg-aira-sand
       p-4 shadow-soft
-      sm:min-h-[420px]
+      sm:min-h-105
       sm:rounded-[28px]
       sm:p-6
     "
@@ -41,7 +41,7 @@ export default function ChatPanel({
 
         {error && (
           <div
-            className="rounded-2xl border border-aira-peach bg-aira-peach/15 p-4 text-sm text-aira-text sm:ml-[52px]"
+            className="rounded-2xl border border-aira-peach bg-aira-peach/15 p-4 text-sm text-aira-text sm:ml-13"
             role="alert"
           >
             <p>{error}</p>
