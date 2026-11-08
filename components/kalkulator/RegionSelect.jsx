@@ -3,12 +3,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { MapPin } from "lucide-react";
+import Combobox from "@/components/navigasi/Combobox";
+import FieldLabel from "@/components/kalkulator/FieldLabel";
 
 const API_BASE =
   "https://www.emsifa.com/api-wilayah-indonesia/v2";
-
-const kolomLokasi =
-  "h-[52px] w-full rounded-2xl border border-aira-primary/20 bg-white px-4 text-base text-aira-text transition-colors focus:border-aira-primary focus:outline-none focus:ring-2 focus:ring-aira-secondary/30 disabled:cursor-not-allowed disabled:bg-aira-bg disabled:text-aira-text/40";
 
 async function ambilWilayah(url) {
   const response = await fetch(url);
@@ -265,129 +264,70 @@ export default function RegionSelect({ value = "", onChange }) {
     onChange(lokasiLengkap);
   }
 
+  // Combobox bekerja dengan nama wilayah; id dicari dari nama yang dipilih.
+  const idDariNama = (daftar, nama) => daftar.find((item) => item.name === nama)?.id ?? "";
+  const namaDariId = (daftar, id) => daftar.find((item) => item.id === id)?.name ?? "";
+
+  const namaProvinsiTerpilih = namaDariId(provinsi, provinsiId);
+  const namaKabupatenTerpilih = namaDariId(kabupaten, kabupatenId);
+  const namaKecamatanTerpilih = namaDariId(kecamatan, kecamatanId);
+
+  // Teks "Lokasi terpilih" mengikuti Figma: tampil begitu provinsi dipilih (Kecamatan, Kabupaten/Kota, Provinsi).
+  const lokasiTerpilih = [namaKecamatanTerpilih, namaKabupatenTerpilih, namaProvinsiTerpilih]
+    .filter(Boolean)
+    .join(", ");
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <MapPin
-          className="size-4 text-aira-primary"
-          aria-hidden="true"
+    <>
+      <FieldLabel icon={MapPin} badge="Opsional">
+        Lokasi / Wilayah Tempat Tinggal
+      </FieldLabel>
+
+      <div className="space-y-4">
+        <Combobox
+          label="Provinsi"
+          placeholder="Pilih provinsi"
+          options={provinsi.map((item) => item.name)}
+          value={namaProvinsiTerpilih}
+          memuat={loadingProvinsi}
+          emptyText="Wilayah tidak ditemukan. Periksa ejaan atau kosongkan untuk melewati estimasi panen hujan."
+          onSelect={(nama) => pilihProvinsi(idDariNama(provinsi, nama))}
         />
-        <span className="text-sm font-semibold text-aira-text">
-          Pilih Wilayah Tempat Tinggal
-        </span>
-        <span className="rounded-full bg-aira-sand px-2.5 py-1 text-xs text-aira-text/70">
-          Opsional
-        </span>
+        <Combobox
+          label="Kabupaten / Kota"
+          placeholder="Pilih kabupaten / kota"
+          options={kabupaten.map((item) => item.name)}
+          value={namaKabupatenTerpilih}
+          disabled={!provinsiId}
+          memuat={loadingKabupaten}
+          hint="Pilih provinsi dahulu"
+          emptyText="Wilayah tidak ditemukan. Periksa ejaan atau kosongkan untuk melewati estimasi panen hujan."
+          onSelect={(nama) => pilihKabupaten(idDariNama(kabupaten, nama))}
+        />
+        <Combobox
+          label="Kecamatan"
+          placeholder="Pilih kecamatan"
+          options={kecamatan.map((item) => item.name)}
+          value={namaKecamatanTerpilih}
+          disabled={!kabupatenId}
+          memuat={loadingKecamatan}
+          hint="Pilih kabupaten / kota dahulu"
+          emptyText="Wilayah tidak ditemukan. Periksa ejaan atau kosongkan untuk melewati estimasi panen hujan."
+          onSelect={(nama) => pilihKecamatan(idDariNama(kecamatan, nama))}
+        />
       </div>
 
-      {/* PROVINSI */}
-      <label className="block">
-        <span className="mb-2 block text-sm text-aira-text/75">
-          Provinsi
-        </span>
-
-        <select
-          value={provinsiId}
-          onChange={(e) => pilihProvinsi(e.target.value)}
-          disabled={loadingProvinsi}
-          className={kolomLokasi}
-        >
-          <option value="">
-            {loadingProvinsi
-              ? "Memuat provinsi..."
-              : "Pilih provinsi"}
-          </option>
-
-          {provinsi.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      {/* KABUPATEN / KOTA */}
-      <label className="block">
-        <span className="mb-2 block text-sm text-aira-text/75">
-          Kabupaten / Kota
-        </span>
-
-        <select
-          value={kabupatenId}
-          onChange={(e) => pilihKabupaten(e.target.value)}
-          disabled={!provinsiId || loadingKabupaten}
-          className={kolomLokasi}
-        >
-          <option value="">
-            {!provinsiId
-              ? "Pilih provinsi dahulu"
-              : loadingKabupaten
-                ? "Memuat kabupaten/kota..."
-                : "Pilih kabupaten / kota"}
-          </option>
-
-          {kabupaten.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      {/* KECAMATAN */}
-      <label className="block">
-        <span className="mb-2 block text-sm text-aira-text/75">
-          Kecamatan
-        </span>
-
-        <select
-          value={kecamatanId}
-          onChange={(e) => pilihKecamatan(e.target.value)}
-          disabled={!kabupatenId || loadingKecamatan}
-          className={kolomLokasi}
-        >
-          <option value="">
-            {!kabupatenId
-              ? "Pilih kabupaten / kota dahulu"
-              : loadingKecamatan
-                ? "Memuat kecamatan..."
-                : "Pilih kecamatan"}
-          </option>
-
-          {kecamatan.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </select>
-      </label>
-
       {error && (
-        <p
-          role="alert"
-          className="text-sm text-aira-coral-dark"
-        >
+        <p role="alert" className="mt-3 text-sm text-aira-coral-dark">
           {error}
         </p>
       )}
 
-      <p className="text-xs leading-relaxed text-aira-text/60">
-        Pilih lokasi tempat tinggal untuk membantu menentukan
-        data curah hujan wilayah secara otomatis.
-        Data curah hujan AIRA tetap menggunakan sumber data
-        simulasi yang tersedia pada sistem.
+      {provinsiId && <p className="mt-3 text-sm font-medium text-aira-primary">Lokasi terpilih: {lokasiTerpilih}</p>}
+      <p className="mt-2 text-sm text-aira-text/65">
+        Dipakai untuk menentukan data curah hujan wilayah Anda secara otomatis.
       </p>
-
-      {value && (
-        <div className="rounded-xl bg-aira-sage/15 px-4 py-3">
-          <p className="text-xs font-semibold text-aira-primary">
-            Lokasi terpilih
-          </p>
-          <p className="mt-1 text-sm text-aira-text">
-            {value}
-          </p>
-        </div>
-      )}
-    </div>
+      <p className="mt-1 text-sm text-aira-text/65">Data curah hujan bersifat simulasi.</p>
+    </>
   );
-} 
+}
