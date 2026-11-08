@@ -1,10 +1,15 @@
-// DATA SIMULASI untuk pengujian halaman Navigasi Air (14 titik, sesuai desain Figma).
+// DATA SIMULASI untuk pengujian halaman Navigasi Air dan Detail Titik Air (14 titik, sesuai desain Figma).
 // Semua titik, kontak, dan nomor telepon di bawah ini fiktif dan berlabel "Data simulasi" di tampilan.
 // Nanti diganti oleh data tabel water_points dari Supabase (hanya titik yang boleh ditampilkan).
-// Nama kolom mengikuti prototipe Figma agar halaman Detail (A05) memakai data yang sama.
+// Nama kolom mengikuti prototipe Figma agar halaman Daftar (A04) dan Detail (A05) memakai data yang sama.
 //
-// Catatan: "updatedHoursAgo" dipakai hanya untuk pengurutan (makin kecil makin baru).
-// Titik tanpa latitude/longitude memakai tautan pencarian alamat di Google Maps.
+// Catatan:
+// - "updatedHoursAgo" dipakai hanya untuk pengurutan (makin kecil makin baru).
+// - Kolom opsional (boleh kosong/tidak ada): latitude, longitude, locationHint, usagePurpose, source.
+//   Halaman Detail menampilkan "Belum dikonfirmasi" / "Belum diketahui" bila kolom ini kosong.
+// - Titik tanpa latitude/longitude memakai tautan pencarian alamat di Google Maps.
+//   Tautan tombol "Buka di Google Maps" pada halaman Detail dibuat dari koordinat (lib/googleMaps.js).
+// - Variasi data: lengkap (wp1), tanpa koordinat tapi ada alamat (wp5, wp9, wp11), tanpa alamat dan koordinat (wp14).
 
 export const TITIK_AIR_SIMULASI = [
   {
@@ -24,12 +29,15 @@ export const TITIK_AIR_SIMULASI = [
     "updatedHoursAgo": 2,
     "hours": "Setiap hari, 06.00 - 18.00 WIB",
     "access": "Gratis untuk warga padukuhan, bawa jeriken sendiri",
-    "quality": "Sebaiknya direbus sebelum diminum",
+    "quality": "Kualitas belum diuji; olah air sebelum diminum",
     "provider": "Kelompok Perempuan Tani Bohol",
     "contact": "Ibu Sri Wahyuni (pengelola)",
     "phone": "0812-3456-7801",
     "note": "Antrean biasanya ramai pukul 06.00 - 08.00. Datang siang hari untuk waktu tunggu lebih singkat.",
-    "maps": "https://www.google.com/maps/dir/?api=1&destination=-8.1325,110.9381"
+    "maps": "https://www.google.com/maps/dir/?api=1&destination=-8.1325,110.9381",
+    "locationHint": "Dekat balai padukuhan Bohol",
+    "usagePurpose": "Untuk kebutuhan sehari-hari (belum dikonfirmasi)",
+    "source": "Laporan pengelola (simulasi)"
   },
   {
     "id": "wp2",
@@ -48,12 +56,14 @@ export const TITIK_AIR_SIMULASI = [
     "updatedHoursAgo": 30,
     "hours": "Setiap hari, pengisian ulang sore hari",
     "access": "Gratis, maksimal 4 jeriken per keluarga",
-    "quality": "Kualitas belum diperiksa. Air sebaiknya diolah (direbus) sebelum diminum.",
+    "quality": "Kualitas belum diuji; olah air sebelum diminum",
     "provider": "Pemerintah Desa Pucanganom",
     "contact": "Bapak Suparman (kepala dusun)",
     "phone": "0821-4455-2290",
     "note": "Debit turun selama kemarau. Pembagian dilakukan bergilir per RT.",
-    "maps": "https://www.google.com/maps/dir/?api=1&destination=-8.1462,110.9215"
+    "maps": "https://www.google.com/maps/dir/?api=1&destination=-8.1462,110.9215",
+    "locationHint": "Di samping kantor dusun",
+    "source": "Data simulasi AIRA"
   },
   {
     "id": "wp3",
@@ -72,12 +82,14 @@ export const TITIK_AIR_SIMULASI = [
     "updatedHoursAgo": 72,
     "hours": "Senin - Sabtu, 08.00 - 15.00 WIB",
     "access": "Prioritas ibu hamil, ibu menyusui, dan lansia",
-    "quality": "Belum ada data uji kualitas",
+    "quality": "Belum ada informasi kualitas",
     "provider": "BPBD Kabupaten Gunungkidul",
     "contact": "Petugas posko Rongkop",
     "phone": "0813-9087-1144",
     "note": "Data baru dikirim warga dan sedang ditinjau admin.",
-    "maps": "https://www.google.com/maps/dir/?api=1&destination=-8.1204,110.9547"
+    "maps": "https://www.google.com/maps/dir/?api=1&destination=-8.1204,110.9547",
+    "usagePurpose": "Untuk kebutuhan sehari-hari (belum dikonfirmasi)",
+    "source": "Kontribusi warga (simulasi)"
   },
   {
     "id": "wp4",
@@ -96,12 +108,14 @@ export const TITIK_AIR_SIMULASI = [
     "updatedHoursAgo": 5,
     "hours": "Aliran terputus sementara",
     "access": "Berbayar Rp 2.000 per jeriken",
-    "quality": "Air PDAM",
+    "quality": "Belum ada informasi kualitas",
     "provider": "PDAM Tirta Handayani Gunungkidul",
     "contact": "Layanan pelanggan PDAM",
     "phone": "0274-391-100",
     "note": "Pasokan terhenti karena perbaikan pipa utama. Perkiraan pulih belum diketahui.",
-    "maps": "https://www.google.com/maps/dir/?api=1&destination=-8.0412,110.7893"
+    "maps": "https://www.google.com/maps/dir/?api=1&destination=-8.0412,110.7893",
+    "locationHint": "Di area Pasar Semanu",
+    "source": "Data simulasi AIRA"
   },
   {
     "id": "wp5",
@@ -118,12 +132,13 @@ export const TITIK_AIR_SIMULASI = [
     "updatedHoursAgo": 336,
     "hours": "Belum diketahui",
     "access": "Belum diketahui",
-    "quality": "Untuk kebutuhan non-minum",
+    "quality": "Belum ada informasi kualitas",
     "provider": "Kelompok Tani Botodayaan",
     "contact": "Belum tercantum",
     "phone": "",
     "note": "Admin meminta kontributor melengkapi foto dan jam akses.",
-    "maps": "https://www.google.com/maps/search/?api=1&query=Embung%20Botodayaan%2C%20Rongkop%2C%20Gunungkidul"
+    "maps": "https://www.google.com/maps/search/?api=1&query=Embung%20Botodayaan%2C%20Rongkop%2C%20Gunungkidul",
+    "source": "Kontribusi warga (simulasi)"
   },
   {
     "id": "wp6",
@@ -142,12 +157,14 @@ export const TITIK_AIR_SIMULASI = [
     "updatedHoursAgo": 24,
     "hours": "Belum diketahui",
     "access": "Gratis, bawa wadah sendiri",
-    "quality": "Kualitas belum diperiksa. Air sebaiknya diolah (direbus) sebelum diminum.",
+    "quality": "Kualitas belum diuji; olah air sebelum diminum",
     "provider": "Kelompok warga Dusun Melikan",
     "contact": "Belum tercantum",
     "phone": "",
     "note": "Data dikirim warga dan masih menunggu peninjauan admin.",
-    "maps": "https://www.google.com/maps/dir/?api=1&destination=-8.1578,110.9702"
+    "maps": "https://www.google.com/maps/dir/?api=1&destination=-8.1578,110.9702",
+    "locationHint": "Melalui jalan setapak dari jalan dusun",
+    "source": "Kontribusi warga (simulasi)"
   },
   {
     "id": "wp7",
@@ -166,12 +183,15 @@ export const TITIK_AIR_SIMULASI = [
     "updatedHoursAgo": 6,
     "hours": "Setiap hari, 07.00 - 16.00 WIB",
     "access": "Gratis, maksimal 3 jeriken per keluarga",
-    "quality": "Kualitas belum diperiksa. Air sebaiknya diolah (direbus) sebelum diminum.",
+    "quality": "Kualitas belum diuji; olah air sebelum diminum",
     "provider": "Pemerintah Desa Karangwuni",
     "contact": "Bapak Widodo (pengelola)",
     "phone": "0812-5550-1021",
     "note": "Debit pompa menurun pada siang hari.",
-    "maps": "https://www.google.com/maps/dir/?api=1&destination=-8.1389,110.9123"
+    "maps": "https://www.google.com/maps/dir/?api=1&destination=-8.1389,110.9123",
+    "locationHint": "Dekat balai dusun",
+    "usagePurpose": "Untuk kebutuhan sehari-hari (belum dikonfirmasi)",
+    "source": "Laporan pengelola (simulasi)"
   },
   {
     "id": "wp8",
@@ -190,12 +210,15 @@ export const TITIK_AIR_SIMULASI = [
     "updatedHoursAgo": 3,
     "hours": "Setiap hari, 06.00 - 17.00 WIB",
     "access": "Gratis untuk warga, bawa jeriken sendiri",
-    "quality": "Kualitas belum diperiksa. Air sebaiknya diolah (direbus) sebelum diminum.",
+    "quality": "Kualitas belum diuji; olah air sebelum diminum",
     "provider": "Pemerintah Kalurahan Wonosari",
     "contact": "Petugas kalurahan",
     "phone": "0274-555-0148",
     "note": "Pengisian ulang dilakukan setiap pagi.",
-    "maps": "https://www.google.com/maps/dir/?api=1&destination=-7.9644,110.6011"
+    "maps": "https://www.google.com/maps/dir/?api=1&destination=-7.9644,110.6011",
+    "locationHint": "Di halaman kantor kalurahan",
+    "usagePurpose": "Untuk kebutuhan sehari-hari (belum dikonfirmasi)",
+    "source": "Data simulasi AIRA"
   },
   {
     "id": "wp9",
@@ -212,7 +235,7 @@ export const TITIK_AIR_SIMULASI = [
     "updatedHoursAgo": 216,
     "hours": "Belum diketahui",
     "access": "Belum diketahui",
-    "quality": "Belum ada data uji kualitas",
+    "quality": "Belum ada informasi kualitas",
     "provider": "Belum diketahui",
     "contact": "Belum tercantum",
     "phone": "",
@@ -236,12 +259,14 @@ export const TITIK_AIR_SIMULASI = [
     "updatedHoursAgo": 8,
     "hours": "Setiap hari, 06.00 - 20.00 WIB",
     "access": "Berbayar, tarif mengikuti ketentuan pengelola",
-    "quality": "Kualitas belum diperiksa. Air sebaiknya diolah (direbus) sebelum diminum.",
+    "quality": "Kualitas belum diuji; olah air sebelum diminum",
     "provider": "Pengelola hidran umum Sewon",
     "contact": "Layanan pelanggan setempat",
     "phone": "0274-555-0190",
     "note": "Konfirmasi tarif kepada pengelola.",
-    "maps": "https://www.google.com/maps/dir/?api=1&destination=-7.8486,110.3573"
+    "maps": "https://www.google.com/maps/dir/?api=1&destination=-7.8486,110.3573",
+    "locationHint": "Di tepi jalan utama",
+    "source": "Data simulasi AIRA"
   },
   {
     "id": "wp11",
@@ -258,12 +283,13 @@ export const TITIK_AIR_SIMULASI = [
     "updatedHoursAgo": 48,
     "hours": "Belum diketahui",
     "access": "Belum diketahui",
-    "quality": "Belum ada data uji kualitas",
+    "quality": "Belum ada informasi kualitas",
     "provider": "Pengelola tandon kelurahan",
     "contact": "Belum tercantum",
     "phone": "",
     "note": "Menunggu peninjauan admin.",
-    "maps": "https://www.google.com/maps/search/?api=1&query=Kec.%20Mojoroto%2C%20Kota%20Kediri%2C%20Jawa%20Timur"
+    "maps": "https://www.google.com/maps/search/?api=1&query=Kec.%20Mojoroto%2C%20Kota%20Kediri%2C%20Jawa%20Timur",
+    "source": "Kontribusi warga (simulasi)"
   },
   {
     "id": "wp12",
@@ -282,12 +308,14 @@ export const TITIK_AIR_SIMULASI = [
     "updatedHoursAgo": 12,
     "hours": "Setiap hari, 06.00 - 18.00 WIB",
     "access": "Gratis, bawa wadah sendiri",
-    "quality": "Kualitas belum diperiksa. Air sebaiknya diolah (direbus) sebelum diminum.",
+    "quality": "Kualitas belum diuji; olah air sebelum diminum",
     "provider": "Kelompok pengelola mata air Kepanjen",
     "contact": "Pengelola setempat",
     "phone": "0341-555-0112",
     "note": "Konfirmasi ketersediaan kepada pengelola sebelum berangkat.",
-    "maps": "https://www.google.com/maps/dir/?api=1&destination=-8.1295,112.5713"
+    "maps": "https://www.google.com/maps/dir/?api=1&destination=-8.1295,112.5713",
+    "locationHint": "Dekat jalan masuk desa",
+    "source": "Laporan pengelola (simulasi)"
   },
   {
     "id": "wp13",
@@ -306,12 +334,14 @@ export const TITIK_AIR_SIMULASI = [
     "updatedHoursAgo": 4,
     "hours": "Senin - Sabtu, 08.00 - 16.00 WIB",
     "access": "Prioritas ibu hamil, ibu menyusui, dan lansia",
-    "quality": "Belum ada data uji kualitas",
+    "quality": "Belum ada informasi kualitas",
     "provider": "BPBD setempat",
     "contact": "Petugas posko",
     "phone": "0401-555-0133",
     "note": "Pembagian bergantung jadwal kedatangan tangki.",
-    "maps": "https://www.google.com/maps/dir/?api=1&destination=-3.9754,122.5231"
+    "maps": "https://www.google.com/maps/dir/?api=1&destination=-3.9754,122.5231",
+    "usagePurpose": "Kebutuhan darurat (belum dikonfirmasi)",
+    "source": "Data simulasi AIRA"
   },
   {
     "id": "wp14",
@@ -328,7 +358,7 @@ export const TITIK_AIR_SIMULASI = [
     "updatedHoursAgo": 504,
     "hours": "Belum diketahui",
     "access": "Belum diketahui",
-    "quality": "Belum ada data uji kualitas",
+    "quality": "Belum ada informasi kualitas",
     "provider": "Belum diketahui",
     "contact": "Belum tercantum",
     "phone": "",
