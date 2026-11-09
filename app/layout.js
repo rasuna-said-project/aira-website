@@ -2,7 +2,7 @@ import "@/app/globals.css";
 import localFont from "next/font/local";
 import { Inter } from "next/font/google";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import ConditionalFooter from "@/components/ConditionalFooter";
 
 // Heading: Plus Jakarta Sans (variable font lokal)
 const plusJakartaSans = localFont({
@@ -25,21 +25,40 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+// TAMBAHKAN ICONS DI DALAM METADATA DI BAWAH INI:
 export const metadata = {
   title: "AIRA - Smart Water Resilience for Every Woman",
   description: "Solusi Digital Ketahanan Air, Sanitasi, dan Respons Krisis",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="id">
-      <body
-        className={`${plusJakartaSans.variable} ${inter.variable} bg-aira-bg text-aira-text font-body min-h-screen flex flex-col justify-between antialiased`}
-      >
-        <Navbar />
-        <main className="grow">{children}</main>
-        <Footer />
-      </body>
-    </html>
+      
+    <body
+      className={`
+      ${plusJakartaSans.variable}
+      ${inter.variable}
+      min-h-dvh
+      flex flex-col
+     bg-aira-bg
+     text-aira-text
+      font-body
+      antialiased
+    `}
+>
+  <Navbar />
+
+    <main className="w-full min-w-0 flex-1">
+       {children}
+     </main>
+
+      <ConditionalFooter />
+    </body>
+
+  </html>
   );
 }
