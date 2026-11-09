@@ -9,6 +9,7 @@ import HasilHeader from "@/components/kalkulator/hasil/HasilHeader";
 import StatusCard from "@/components/kalkulator/hasil/StatusCard";
 import RingkasanKebutuhan from "@/components/kalkulator/hasil/RingkasanKebutuhan";
 import EstimasiPanenHujan from "@/components/kalkulator/hasil/EstimasiPanenHujan";
+import DisclaimerLangkah from "@/components/kalkulator/hasil/DisclaimerLangkah";
 import RekomendasiCard from "@/components/kalkulator/hasil/RekomendasiCard";
 import PenjelasanAira from "@/components/kalkulator/hasil/PenjelasanAira";
 import HasilActions from "@/components/kalkulator/hasil/HasilActions";
@@ -68,7 +69,8 @@ export default function HasilKalkulator() {
         {/* BARIS 2: langkah (kiri) + alasan & aksi (kanan).
             Tinggi kedua kolom kini hampir sama. */}
         <div className="mt-6 grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
-          <div className="order-2 lg:order-1 lg:col-span-7">
+          <div className="order-2 space-y-6 lg:order-1 lg:col-span-7">
+            <DisclaimerLangkah />
             <RekomendasiCard
               masukan={masukan}
               hasil={hasil}

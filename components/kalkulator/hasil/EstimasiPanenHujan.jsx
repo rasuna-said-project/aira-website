@@ -27,7 +27,7 @@ export default function EstimasiPanenHujan({ hasil, masukan }) {
         <div>
           <h3
             id="rain-result"
-            className="font-heading text-xl font-bold text-aira-primary"
+            className="font-heading text-xl font-semibold text-aira-primary"
           >
             Estimasi Panen Air Hujan
           </h3>
@@ -39,50 +39,48 @@ export default function EstimasiPanenHujan({ hasil, masukan }) {
       </div>
 
       {potensi != null ? (
-        <>
-          <p className="mt-6 font-heading text-4xl font-extrabold leading-none text-aira-primary">
-            {formatAngka(potensi)}
-            <span className="ml-2 text-base font-semibold">
-              liter/bulan
-            </span>
-          </p>
-
-          {Number(hasil?.kebutuhanHarianLiter) > 0 && (
-            <p className="mt-2 text-sm text-aira-text/75">
-              Setara sekitar{" "}
-              <strong>
-                {(potensi / hasil.kebutuhanHarianLiter).toLocaleString(
-                  "id-ID",
-                  { minimumFractionDigits: 1, maximumFractionDigits: 1 }
-                )}{" "}
-                hari
-              </strong>{" "}
-              kebutuhan air rumah tangga Anda.
+        <div className="mt-5 lg:grid lg:grid-cols-2 lg:gap-6">
+          <div>
+            <p className="font-heading text-4xl font-extrabold leading-none text-aira-primary">
+              {formatAngka(potensi)}
+              <span className="ml-2 text-base font-semibold">
+                liter/bulan
+              </span>
             </p>
-          )}
 
-          {wilayah && (
-            <p className="mt-2 text-sm text-aira-text/75">
-              Berdasarkan wilayah {wilayah}.
-            </p>
-          )}
+            {Number(hasil?.kebutuhanHarianLiter) > 0 && (
+              <p className="mt-2 text-sm text-aira-text/75">
+                Setara sekitar{" "}
+                <strong>
+                  {(potensi / hasil.kebutuhanHarianLiter).toLocaleString(
+                    "id-ID",
+                    { minimumFractionDigits: 1, maximumFractionDigits: 1 }
+                  )}{" "}
+                  hari
+                </strong>{" "}
+                kebutuhan air rumah tangga Anda.
+              </p>
+            )}
 
-          <div className="mt-5 rounded-2xl bg-white/80 px-4 py-3 text-sm leading-relaxed text-aira-text/80">
+            {wilayah && (
+              <p className="mt-2 text-sm text-aira-text/75">
+                Berdasarkan wilayah {wilayah}.
+              </p>
+            )}
+          </div>
+
+          <div className="mt-5 rounded-2xl bg-white/80 px-4 py-3 text-sm leading-relaxed text-aira-text/80 lg:mt-0">
             <p className="font-semibold text-aira-primary">
               Dasar estimasi:
             </p>
 
-            <p className="mt-2">
-              Luas atap: {formatAngka(luasAtap)} m²
-            </p>
-
-            <p>
-              Curah hujan: {formatAngka(curahHujan)} mm/bulan
-            </p>
-
-            <p>Koefisien tampung: 0,8</p>
+            <ul className="mt-2 space-y-0.5">
+              <li>Luas atap: {formatAngka(luasAtap)} m²</li>
+              <li>Curah hujan: {formatAngka(curahHujan)} mm/bulan</li>
+              <li>Koefisien tampung: 0,8</li>
+            </ul>
           </div>
-        </>
+        </div>
       ) : (
         <div className="mt-5 rounded-2xl bg-white/80 p-4">
           <p className="text-sm leading-relaxed text-aira-text/80">
@@ -92,7 +90,7 @@ export default function EstimasiPanenHujan({ hasil, masukan }) {
 
           <Link
             href="/kalkulator-air"
-            className="mt-3 inline-flex text-sm font-semibold text-aira-primary underline underline-offset-4"
+            className="mt-3 inline-flex min-h-11 items-center text-sm font-bold text-aira-primary underline"
           >
             Lengkapi data panen hujan
           </Link>

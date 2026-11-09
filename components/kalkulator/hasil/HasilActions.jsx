@@ -60,7 +60,7 @@ export default function HasilActions({ statusKey }) {
 
       <Link
         href="/kalkulator-air"
-        className="mt-1 inline-flex items-center justify-center gap-2 text-sm font-medium text-aira-text/70 underline underline-offset-4 hover:text-aira-primary"
+        className="inline-flex min-h-11 items-center justify-center gap-1.5 self-center px-2 text-sm font-medium text-aira-text/70 underline hover:text-aira-primary"
       >
         <Pencil className="size-4" />
         Ubah Data Perhitungan
