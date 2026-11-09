@@ -1,9 +1,7 @@
-export default function SignUp() {
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold text-aira-primary">
-        Halaman Registrasi
-      </h1>
-    </div>
-  );
+import RegisterScreen from "@/components/auth/RegisterScreen";
+
+export const metadata = { title: "Daftar | AIRA" };
+
+export default function DaftarPage() {
+  return <RegisterScreen />;
 }
