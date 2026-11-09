@@ -1,4 +1,4 @@
-"use client";
+"use client"; 
 
 import { useState } from "react";
 import Image from "next/image";
@@ -16,23 +16,41 @@ const links = [
 const primaryClass =
   "bg-gradient-to-r from-aira-primary to-aira-secondary text-white shadow-sm hover:from-aira-primary-dark hover:to-aira-primary";
 
-// Link aktif jika rute sama, atau berada di bawah rute tersebut (kecuali Beranda).
 function isActive(pathname, href) {
-  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+  return href === "/"
+    ? pathname === "/"
+    : pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export default function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+
   const handleLogoClick = () => {
-  setOpen(false);
-  if (pathname === "/") window.scrollTo({ top: 0, behavior: "smooth" });
-}; 
+    setOpen(false);
+
+    if (pathname === "/") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  // Dashboard memiliki header khusus.
+  // Mencegah Navbar global muncul dua kali.
+  if (pathname.startsWith("/dashboard")) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-aira-primary/10 bg-aira-bg/90 backdrop-blur">
       <div className="mx-auto flex h-18 max-w-310 items-center justify-between px-5">
-        <Link href="/" onClick={handleLogoClick} aria-label="AIRA — Beranda" className="flex items-center">
+
+        {/* Logo */}
+        <Link
+          href="/"
+          onClick={handleLogoClick}
+          aria-label="AIRA — Beranda"
+          className="flex items-center"
+        >
           <Image
             src="/images/aira-logo.svg"
             alt=""
@@ -43,10 +61,14 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* Menu desktop */}
-        <nav className="hidden items-center gap-1 lg:flex" aria-label="Navigasi utama">
+        {/* Navigasi desktop */}
+        <nav
+          className="hidden items-center gap-1 lg:flex"
+          aria-label="Navigasi utama"
+        >
           {links.map((link) => {
             const active = isActive(pathname, link.href);
+
             return (
               <Link
                 key={link.href}
@@ -54,7 +76,11 @@ export default function Navbar() {
                 aria-current={active ? "page" : undefined}
                 className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[15px] font-medium transition-all ${
                   link.primary
-                    ? `${primaryClass} ${active ? "ring-2 ring-aira-secondary ring-offset-2 ring-offset-aira-bg" : ""}`
+                    ? `${primaryClass} ${
+                        active
+                          ? "ring-2 ring-aira-secondary ring-offset-2 ring-offset-aira-bg"
+                          : ""
+                      }`
                     : active
                       ? "bg-aira-primary/10 text-aira-primary"
                       : "text-aira-text/80 hover:bg-aira-sand"
@@ -67,6 +93,7 @@ export default function Navbar() {
           })}
         </nav>
 
+        {/* Tombol masuk dan daftar */}
         <div className="hidden items-center gap-2 lg:flex">
           <Link
             href="/masuk"
@@ -74,6 +101,7 @@ export default function Navbar() {
           >
             Masuk
           </Link>
+
           <Link
             href="/daftar"
             className="rounded-full bg-aira-primary px-5 py-2.5 text-[15px] font-semibold text-white shadow-soft transition-colors hover:bg-aira-primary-dark"
@@ -82,6 +110,7 @@ export default function Navbar() {
           </Link>
         </div>
 
+        {/* Tombol menu mobile */}
         <button
           type="button"
           className="grid size-11 place-items-center rounded-full hover:bg-aira-sand lg:hidden"
@@ -94,7 +123,7 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Menu mobile */}
+      {/* Navigasi mobile */}
       {open && (
         <div
           id="mobile-navigation"
@@ -102,6 +131,7 @@ export default function Navbar() {
         >
           {links.map((link) => {
             const active = isActive(pathname, link.href);
+
             return (
               <Link
                 key={link.href}
@@ -111,7 +141,9 @@ export default function Navbar() {
                 className={`flex items-center gap-2 text-[17px] font-medium ${
                   link.primary
                     ? `my-2 rounded-full px-4 py-3 ${primaryClass}`
-                    : `border-b border-aira-primary/5 py-3.5 ${active ? "text-aira-primary" : ""}`
+                    : `border-b border-aira-primary/5 py-3.5 ${
+                        active ? "text-aira-primary" : ""
+                      }`
                 }`}
               >
                 {link.primary && <Calculator className="size-4" />}
@@ -119,6 +151,7 @@ export default function Navbar() {
               </Link>
             );
           })}
+
           <div className="flex gap-3 pt-4">
             <Link
               href="/masuk"
@@ -127,6 +160,7 @@ export default function Navbar() {
             >
               Masuk
             </Link>
+
             <Link
               href="/daftar"
               onClick={() => setOpen(false)}
@@ -139,4 +173,4 @@ export default function Navbar() {
       )}
     </header>
   );
-}
+} 
