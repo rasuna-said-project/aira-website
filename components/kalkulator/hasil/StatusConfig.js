@@ -53,7 +53,7 @@ export const STATUS_TAMPILAN = {
     rekomendasi: [
       "Batasi pemakaian ke kebutuhan dasar (minum dan sanitasi)",
       "Hubungi tetangga, RT/RW, atau layanan air darurat setempat",
-      "Rebus atau olah air sebelum diminum",
+      "Ikuti petunjuk resmi untuk mengolah air sebelum diminum",
     ],
   },
 
@@ -77,4 +77,4 @@ export const STATUS_TAMPILAN = {
 
 export function ambilStatusTampilan(statusKey) {
   return STATUS_TAMPILAN[statusKey] || STATUS_TAMPILAN.belum;
-} 
+}

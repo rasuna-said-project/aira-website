@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -9,7 +10,6 @@ import {
   Container,
   Droplet,
   Home,
-  MapPin,
   Users,
 } from "lucide-react";
 
@@ -65,7 +65,13 @@ export default function KalkulatorForm() {
       if (raw) {
         const draft = JSON.parse(raw);
 
-        if (draft && typeof draft === "object") {
+        if (
+          draft &&
+          typeof draft === "object" &&
+          !Array.isArray(draft)
+        ) {
+          // Memulihkan draft dari sessionStorage ke state awal.
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setValue({
             ...INPUT_AWAL,
             ...draft,
@@ -73,7 +79,10 @@ export default function KalkulatorForm() {
         }
       }
     } catch (error) {
-      console.error("Gagal memulihkan draft kalkulator:", error);
+      console.error(
+        "Gagal memulihkan draft kalkulator:",
+        error
+      );
     } finally {
       // Menandakan proses pemulihan selesai.
       setIsRestored(true);
@@ -94,7 +103,10 @@ export default function KalkulatorForm() {
         JSON.stringify(value)
       );
     } catch (error) {
-      console.error("Gagal menyimpan draft kalkulator:", error);
+      console.error(
+        "Gagal menyimpan draft kalkulator:",
+        error
+      );
     }
   }, [value, isRestored]);
 
@@ -201,7 +213,6 @@ export default function KalkulatorForm() {
 
       // Pindah ke halaman hasil tanpa menghapus draft.
       router.push("/kalkulator-air/hasil");
-
     } catch (error) {
       console.error("Perhitungan gagal:", error);
 
@@ -249,10 +260,10 @@ export default function KalkulatorForm() {
           {/* LOKASI / WILAYAH TEMPAT TINGGAL */}
           <div>
             <RegionSelect
-            value={value.lokasi}
-            onChange={(v) => set("lokasi", v)}
+              value={value.lokasi}
+              onChange={(v) => set("lokasi", v)}
             />
-          </div> 
+          </div>
 
           {/* JUMLAH ANGGOTA KELUARGA */}
           <div>
