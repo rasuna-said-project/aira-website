@@ -27,6 +27,7 @@ import {
   BASIC_PER_ORANG,
   INPUT_AWAL,
   KONDISI_SUMBER_AIR,
+  MIN_ANGGOTA,
   MAX_ANGGOTA,
   MAX_LUAS_ATAP_M2,
   MHM_PER_ORANG,
@@ -46,7 +47,10 @@ const pesanError = "mt-1 block text-sm text-aira-coral-dark";
 export default function KalkulatorForm() {
   const router = useRouter();
 
-  // State utama formulir.
+  // =====================================================
+  // 1. STATE FORMULIR
+  // =====================================================
+
   const [value, setValue] = useState(INPUT_AWAL);
   const [isRestored, setIsRestored] = useState(false);
 
@@ -55,7 +59,7 @@ export default function KalkulatorForm() {
   const [gagal, setGagal] = useState("");
 
   // =====================================================
-  // 1. MEMULIHKAN DATA TERAKHIR PENGGUNA
+  // 2. MEMULIHKAN DATA TERAKHIR PENGGUNA
   // =====================================================
 
   useEffect(() => {
@@ -70,11 +74,18 @@ export default function KalkulatorForm() {
           typeof draft === "object" &&
           !Array.isArray(draft)
         ) {
-          // Memulihkan draft dari sessionStorage ke state awal.
+          // Memulihkan draft dari sessionStorage.
           // eslint-disable-next-line react-hooks/set-state-in-effect
           setValue({
             ...INPUT_AWAL,
             ...draft,
+            anggota: Math.max(
+              MIN_ANGGOTA,
+              Math.min(
+                Number(draft.anggota) || MIN_ANGGOTA,
+                MAX_ANGGOTA
+              )
+            ),
           });
         }
       }
@@ -84,13 +95,12 @@ export default function KalkulatorForm() {
         error
       );
     } finally {
-      // Menandakan proses pemulihan selesai.
       setIsRestored(true);
     }
   }, []);
 
   // =====================================================
-  // 2. MENYIMPAN DATA INPUT SECARA OTOMATIS
+  // 3. MENYIMPAN DATA INPUT SECARA OTOMATIS
   // =====================================================
 
   useEffect(() => {
@@ -111,7 +121,7 @@ export default function KalkulatorForm() {
   }, [value, isRestored]);
 
   // =====================================================
-  // 3. MENGATUR PERUBAHAN INPUT
+  // 4. MENGATUR PERUBAHAN INPUT
   // =====================================================
 
   const set = (key, val) => {
@@ -121,7 +131,8 @@ export default function KalkulatorForm() {
     }));
   };
 
-  const { errors } = validasiInput(value);
+  const hasilValidasi = validasiInput(value);
+  const { errors } = hasilValidasi;
 
   const kapasitasError =
     touched || (value.kapasitas !== "" && value.kapasitas !== "0")
@@ -150,19 +161,27 @@ export default function KalkulatorForm() {
     : 0;
 
   // Mengatur jumlah anggota keluarga.
-  const ubahAnggota = (n) =>
+  // Minimal 1 orang dan maksimal MAX_ANGGOTA.
+  const ubahAnggota = (n) => {
+    const jumlahAnggota = Math.max(
+      MIN_ANGGOTA,
+      Math.min(
+        Number(n) || MIN_ANGGOTA,
+        MAX_ANGGOTA
+      )
+    );
+
     setValue((current) => ({
       ...current,
-      anggota: n,
-      mhm: n === 0 ? false : current.mhm,
-      anggotaMhm:
-        n === 0 || !current.mhm
-          ? 0
-          : Math.max(
-              1,
-              Math.min(current.anggotaMhm, n)
-            ),
+      anggota: jumlahAnggota,
+      anggotaMhm: current.mhm
+        ? Math.min(
+            Math.max(current.anggotaMhm || 1, 1),
+            jumlahAnggota
+          )
+        : 0,
     }));
+  };
 
   // Mengaktifkan atau menonaktifkan kebutuhan MHM.
   const ubahMhm = () =>
@@ -181,7 +200,7 @@ export default function KalkulatorForm() {
     }));
 
   // =====================================================
-  // 4. PROSES PERHITUNGAN DAN PENYIMPANAN HASIL
+  // 5. PROSES PERHITUNGAN DAN PENYIMPANAN HASIL
   // =====================================================
 
   async function handleSubmit(event) {
@@ -189,10 +208,22 @@ export default function KalkulatorForm() {
 
     setTouched(true);
     setGagal("");
+
+    // Validasi seluruh input menggunakan calculatorFormService.
+    const cek = validasiInput(value);
+
+    if (!cek.valid) {
+      setGagal(
+        cek.daftar?.[0] ||
+          "Periksa kembali data yang kamu masukkan."
+      );
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Simpan seluruh input terakhir sebelum berpindah halaman.
+      // Simpan seluruh input terakhir sebelum perhitungan.
       try {
         sessionStorage.setItem(
           DRAFT_KEY,
@@ -205,13 +236,28 @@ export default function KalkulatorForm() {
         );
       }
 
-      // Jalankan perhitungan melalui server action.
+      // Jalankan perhitungan melalui Server Action.
       const hasil = await hitungKalkulator(value);
+
+      // Periksa apakah perhitungan ditolak oleh server.
+      if (!hasil || hasil.valid === false) {
+        const pesanServer = Array.isArray(hasil?.errors)
+          ? hasil.errors[0]
+          : hasil?.errors;
+
+        setGagal(
+          pesanServer ||
+            "Perhitungan belum berhasil. Periksa kembali data yang dimasukkan."
+        );
+
+        setLoading(false);
+        return;
+      }
 
       // Simpan hasil perhitungan untuk halaman hasil.
       simpanHasilKalkulator(value, hasil);
 
-      // Pindah ke halaman hasil tanpa menghapus draft.
+      // Pindah ke halaman hasil.
       router.push("/kalkulator-air/hasil");
     } catch (error) {
       console.error("Perhitungan gagal:", error);
@@ -225,7 +271,7 @@ export default function KalkulatorForm() {
   }
 
   // =====================================================
-  // 5. TAMPILAN FORM KALKULATOR
+  // 6. TAMPILAN FORM KALKULATOR
   // =====================================================
 
   return (
@@ -247,7 +293,8 @@ export default function KalkulatorForm() {
           </h1>
 
           <p className="mx-auto mt-3 max-w-lg text-aira-text/80">
-            Isi data rumah tangga Anda. Hasilnya berupa estimasi berapa hari cadangan air akan bertahan, ditambah
+            Isi data rumah tangga Anda. Hasilnya berupa estimasi
+            berapa hari cadangan air akan bertahan, ditambah
             potensi panen air hujan.
           </p>
         </div>
@@ -273,18 +320,12 @@ export default function KalkulatorForm() {
 
             <Stepper
               value={value.anggota}
-              min={0}
+              min={MIN_ANGGOTA}
               max={MAX_ANGGOTA}
               label="Jumlah anggota keluarga"
               onChange={ubahAnggota}
               editable
             />
-
-            {value.anggota === 0 && (
-              <p className="mt-2 text-sm text-aira-text/65">
-                Isi minimal 1 anggota keluarga.
-              </p>
-            )}
           </div>
 
           {/* SUMBER DAN KONDISI AIR */}
@@ -306,7 +347,9 @@ export default function KalkulatorForm() {
                 className="h-13 w-full rounded-2xl border border-aira-primary/20 bg-white px-4 text-base transition-colors focus:border-aira-primary focus:outline-none"
               >
                 {SUMBER_AIR.map((s) => (
-                  <option key={s}>{s}</option>
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
                 ))}
               </select>
             </label>
@@ -455,9 +498,8 @@ export default function KalkulatorForm() {
                 role="switch"
                 aria-checked={value.mhm}
                 aria-label="Sertakan kebutuhan MHM"
-                disabled={value.anggota === 0}
                 onClick={ubahMhm}
-                className={`relative h-8 w-14 shrink-0 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                className={`relative h-8 w-14 shrink-0 rounded-full transition-colors ${
                   value.mhm
                     ? "bg-aira-primary"
                     : "bg-aira-text/25"
@@ -483,7 +525,13 @@ export default function KalkulatorForm() {
                   max={value.anggota}
                   label="Jumlah anggota yang sedang menstruasi"
                   onChange={(n) =>
-                    set("anggotaMhm", n)
+                    set(
+                      "anggotaMhm",
+                      Math.max(
+                        1,
+                        Math.min(Number(n) || 1, value.anggota)
+                      )
+                    )
                   }
                 />
               </div>
