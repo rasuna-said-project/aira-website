@@ -3,6 +3,7 @@ import {
   catatanMonitoringSimulasi,
   kontribusiSimulasi,
   profilKeluargaSimulasi,
+  riwayatKalkulatorSimulasi,
 } from "@/data/dashboardSimulasi";
 
 // Sumber data Dashboard User. SAAT INI memakai data simulasi (data/dashboardSimulasi.js).
@@ -13,6 +14,7 @@ export const ambilDataDashboard = cache(async () => {
   return {
     keluarga: profilKeluargaSimulasi,
     catatan: catatanMonitoringSimulasi,
+    riwayat: riwayatKalkulatorSimulasi,
     kontribusi: kontribusiSimulasi,
   };
 });
