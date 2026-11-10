@@ -1,10 +1,12 @@
 "use client"; 
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calculator, Menu, X } from "lucide-react";
+import { Calculator, LogOut, Menu, X } from "lucide-react";
+
+import LogoutDialog from "@/components/LogoutDialog";
 
 const links = [
   { label: "Beranda", href: "/" },
@@ -22,9 +24,12 @@ function isActive(pathname, href) {
     : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export default function Navbar() {
+// `sesi` berasal dari app/layout.js: null bila belum login, atau { inisial, href } bila sudah login.
+export default function Navbar({ sesi = null }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [konfirmasi, setKonfirmasi] = useState(false);
+  const tutupKonfirmasi = useCallback(() => setKonfirmasi(false), []);
 
   const handleLogoClick = () => {
     setOpen(false);
@@ -41,6 +46,7 @@ export default function Navbar() {
   }
 
   return (
+    <>
     <header className="sticky top-0 z-40 border-b border-aira-primary/10 bg-aira-bg/90 backdrop-blur">
       <div className="mx-auto flex h-18 max-w-310 items-center justify-between px-5">
 
@@ -93,21 +99,45 @@ export default function Navbar() {
           })}
         </nav>
 
-        {/* Tombol masuk dan daftar */}
+        {/* Aksi akun: Masuk dan Daftar, atau Dashboard dan Logout bila sudah login */}
         <div className="hidden items-center gap-2 lg:flex">
-          <Link
-            href="/masuk"
-            className="rounded-full px-5 py-2.5 text-[15px] font-semibold text-aira-primary transition-colors hover:bg-aira-primary/10"
-          >
-            Masuk
-          </Link>
+          {sesi ? (
+            <>
+              <Link
+                href={sesi.href}
+                className="flex items-center gap-2.5 rounded-full bg-aira-primary/10 py-1.5 pl-1.5 pr-5 font-semibold text-aira-primary transition-colors hover:bg-aira-primary/15"
+              >
+                <span className="grid size-9 place-items-center rounded-full bg-aira-primary text-sm font-bold text-white">
+                  {sesi.inisial}
+                </span>
+                Dashboard
+              </Link>
 
-          <Link
-            href="/daftar"
-            className="rounded-full bg-aira-primary px-5 py-2.5 text-[15px] font-semibold text-white shadow-soft transition-colors hover:bg-aira-primary-dark"
-          >
-            Daftar
-          </Link>
+              <button
+                type="button"
+                onClick={() => setKonfirmasi(true)}
+                className="inline-flex min-h-12 items-center gap-2 rounded-full border border-aira-primary/25 px-4 py-2 text-sm font-semibold text-aira-primary transition-colors hover:bg-aira-primary/10"
+              >
+                <LogOut className="size-4" /> Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/masuk"
+                className="rounded-full px-5 py-2.5 text-[15px] font-semibold text-aira-primary transition-colors hover:bg-aira-primary/10"
+              >
+                Masuk
+              </Link>
+
+              <Link
+                href="/daftar"
+                className="rounded-full bg-aira-primary px-5 py-2.5 text-[15px] font-semibold text-white shadow-soft transition-colors hover:bg-aira-primary-dark"
+              >
+                Daftar
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Tombol menu mobile */}
@@ -153,24 +183,52 @@ export default function Navbar() {
           })}
 
           <div className="flex gap-3 pt-4">
-            <Link
-              href="/masuk"
-              onClick={() => setOpen(false)}
-              className="flex-1 rounded-full border-2 border-aira-primary py-3 text-center font-semibold text-aira-primary"
-            >
-              Masuk
-            </Link>
+            {sesi ? (
+              <>
+                <Link
+                  href={sesi.href}
+                  onClick={() => setOpen(false)}
+                  className="flex-1 rounded-full bg-aira-primary py-3 text-center font-semibold text-white"
+                >
+                  Dashboard saya
+                </Link>
 
-            <Link
-              href="/daftar"
-              onClick={() => setOpen(false)}
-              className="flex-1 rounded-full bg-aira-primary py-3 text-center font-semibold text-white"
-            >
-              Daftar
-            </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    setKonfirmasi(true);
+                  }}
+                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border-2 border-aira-primary py-3 font-semibold text-aira-primary"
+                >
+                  <LogOut className="size-4" /> Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/masuk"
+                  onClick={() => setOpen(false)}
+                  className="flex-1 rounded-full border-2 border-aira-primary py-3 text-center font-semibold text-aira-primary"
+                >
+                  Masuk
+                </Link>
+
+                <Link
+                  href="/daftar"
+                  onClick={() => setOpen(false)}
+                  className="flex-1 rounded-full bg-aira-primary py-3 text-center font-semibold text-white"
+                >
+                  Daftar
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
     </header>
+
+      <LogoutDialog open={konfirmasi} onClose={tutupKonfirmasi} />
+    </>
   );
 } 

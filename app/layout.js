@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { Inter } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import ConditionalFooter from "@/components/ConditionalFooter";
+import { ambilSesiNavbar } from "@/lib/sesiNavbar";
 
 // Heading: Plus Jakarta Sans (variable font lokal)
 const plusJakartaSans = localFont({
@@ -34,7 +35,10 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  // Status login dibaca di server agar Navbar langsung benar di semua halaman.
+  const sesi = await ambilSesiNavbar();
+
   return (
     <html lang="id">
       
@@ -50,7 +54,7 @@ export default function RootLayout({ children }) {
       antialiased
     `}
 >
-  <Navbar />
+  <Navbar sesi={sesi} />
 
     <main className="w-full min-w-0 flex-1">
        {children}
