@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Calculator, LogOut, Menu, X } from "lucide-react";
 
-import { logout } from "@/app/actions/auth";
+import LogoutDialog from "@/components/LogoutDialog";
 
 const links = [
   { label: "Beranda", href: "/" },
@@ -21,15 +21,7 @@ const primaryClass =
 export default function DashboardHeader({ inisial }) {
   const [open, setOpen] = useState(false);
   const [konfirmasi, setKonfirmasi] = useState(false);
-  const tombolBatal = useRef(null);
-
-  useEffect(() => {
-    if (!konfirmasi) return;
-    tombolBatal.current?.focus();
-    const onKey = (e) => e.key === "Escape" && setKonfirmasi(false);
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [konfirmasi]);
+  const tutupKonfirmasi = useCallback(() => setKonfirmasi(false), []);
 
   return (
     <>
@@ -137,43 +129,7 @@ export default function DashboardHeader({ inisial }) {
         )}
       </header>
 
-      {konfirmasi && (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-aira-primary-dark/60 p-4 backdrop-blur-sm"
-          onMouseDown={(e) => e.target === e.currentTarget && setKonfirmasi(false)}
-        >
-          <div
-            role="alertdialog"
-            aria-modal="true"
-            aria-labelledby="judul-logout"
-            className="fade-up w-full max-w-sm rounded-[28px] bg-white p-6 shadow-soft sm:p-7"
-          >
-            <h2 id="judul-logout" className="text-xl font-semibold text-aira-primary">
-              Keluar dari akun AIRA?
-            </h2>
-            <p className="mt-2 text-sm text-aira-text/75">
-              Fitur publik seperti kalkulator dan navigasi air tetap bisa dipakai.
-            </p>
-
-            <form action={logout} className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-              <button
-                ref={tombolBatal}
-                type="button"
-                onClick={() => setKonfirmasi(false)}
-                className="min-h-[48px] w-full rounded-full px-5 py-3 font-semibold text-aira-primary hover:bg-aira-primary/10 sm:w-auto"
-              >
-                Batal
-              </button>
-              <button
-                type="submit"
-                className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full bg-aira-coral-dark px-6 py-3 font-semibold text-white hover:brightness-110 sm:w-auto"
-              >
-                <LogOut className="size-5" /> Ya, Keluar
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      <LogoutDialog open={konfirmasi} onClose={tutupKonfirmasi} />
     </>
   );
 }
