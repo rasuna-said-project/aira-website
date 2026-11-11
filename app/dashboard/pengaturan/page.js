@@ -10,14 +10,14 @@ export default async function PengaturanPage() {
   const profile = await getCurrentProfile();
 
   if (!profile) {
-    redirect("/login");
+    redirect("/masuk");
   }
 
   return (
     <main className="w-full">
       {/* Header halaman */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-[#176B78] sm:text-[28px]">
+        <h1 className="text-2xl font-bold tracking-tight text-aira-primary sm:text-[28px]">
           Pengaturan Akun
         </h1>
 

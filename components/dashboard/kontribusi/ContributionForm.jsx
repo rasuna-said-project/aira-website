@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { X, Send } from "lucide-react";
 
 const initialForm = {
@@ -16,22 +16,38 @@ const initialForm = {
   note: "",
 };
 
+function getFormValues(editData) {
+  if (!editData) {
+    return initialForm;
+  }
+
+  return {
+    name: editData.name || "",
+    type: editData.type || "Sumur bor",
+    address: editData.address || "",
+    mapsUrl: editData.mapsUrl || "",
+    availability: editData.availability || "Tersedia",
+    accessHours: editData.accessHours || "",
+    manager: editData.manager || "",
+    managerContact: editData.managerContact || "",
+    informationSource: editData.informationSource || "",
+    note: editData.note || "",
+  };
+}
+
 export default function ContributionForm({
   isOpen,
   onClose,
   onSubmit,
   editData,
 }) {
-  const [form, setForm] = useState(() => ({
-    ...initialForm,
-    ...editData,
-  }));
-
   useEffect(() => {
     if (!isOpen) return;
 
     function handleEscape(event) {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") {
+        onClose();
+      }
     }
 
     document.addEventListener("keydown", handleEscape);
@@ -45,17 +61,32 @@ export default function ContributionForm({
 
   if (!isOpen) return null;
 
-  function handleChange(event) {
-    const { name, value } = event.target;
-
-    setForm((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
-  }
+  const formValues = getFormValues(editData);
 
   function handleSubmit(event) {
     event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+
+    const form = {
+      name: String(formData.get("name") || "").trim(),
+      type: String(formData.get("type") || "Sumur bor"),
+      address: String(formData.get("address") || "").trim(),
+      mapsUrl: String(formData.get("mapsUrl") || "").trim(),
+      availability: String(
+        formData.get("availability") || "Tersedia"
+      ),
+      accessHours: String(formData.get("accessHours") || "").trim(),
+      manager: String(formData.get("manager") || "").trim(),
+      managerContact: String(
+        formData.get("managerContact") || ""
+      ).trim(),
+      informationSource: String(
+        formData.get("informationSource") || ""
+      ),
+      note: String(formData.get("note") || "").trim(),
+    };
+
     onSubmit(form);
   }
 
@@ -66,28 +97,30 @@ export default function ContributionForm({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#164F58]/60 p-3 backdrop-blur-[2px] sm:p-5"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-[#164F58]/60 p-3 backdrop-blur-[2px] sm:p-5"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
       }}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="contribution-form-title"
-        className="flex max-h-[92vh] w-full max-w-[510px] flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
+        className="flex max-h-[92vh] w-full max-w-127.5 flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
       >
         {/* Header modal */}
         <div className="flex shrink-0 items-start justify-between border-b border-gray-100 px-5 py-4 sm:px-6">
           <div>
             <h2
               id="contribution-form-title"
-              className="text-base font-semibold text-[#176B78]"
+              className="text-base font-semibold text-aira-primary"
             >
               {editData ? "Perbaiki Titik Air" : "Kirim Titik Air Baru"}
             </h2>
 
-            <p className="mt-1 max-w-[390px] text-[11px] leading-relaxed text-gray-400">
+            <p className="mt-1 max-w-97.5 text-[11px] leading-relaxed text-gray-400">
               Lengkapi informasi yang Anda ketahui. Admin akan memverifikasi
               sebelum data ditampilkan.
             </p>
@@ -105,6 +138,7 @@ export default function ContributionForm({
 
         {/* Form scroll area */}
         <form
+          key={JSON.stringify(editData || null)}
           onSubmit={handleSubmit}
           className="flex min-h-0 flex-1 flex-col"
         >
@@ -112,23 +146,27 @@ export default function ContributionForm({
             {/* Nama dan jenis sumber */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className={labelClass}>Nama titik air</label>
+                <label className={labelClass} htmlFor="contribution-name">
+                  Nama titik air
+                </label>
                 <input
+                  id="contribution-name"
                   required
                   name="name"
-                  value={form.name}
-                  onChange={handleChange}
+                  defaultValue={formValues.name}
                   placeholder="Contoh: Sumur Komunal RT 04"
                   className={inputClass}
                 />
               </div>
 
               <div>
-                <label className={labelClass}>Jenis sumber</label>
+                <label className={labelClass} htmlFor="contribution-type">
+                  Jenis sumber
+                </label>
                 <select
+                  id="contribution-type"
                   name="type"
-                  value={form.type}
-                  onChange={handleChange}
+                  defaultValue={formValues.type}
                   className={inputClass}
                 >
                   <option>Sumur bor</option>
@@ -146,12 +184,14 @@ export default function ContributionForm({
 
             {/* Alamat */}
             <div>
-              <label className={labelClass}>Alamat lengkap</label>
+              <label className={labelClass} htmlFor="contribution-address">
+                Alamat lengkap
+              </label>
               <textarea
+                id="contribution-address"
                 required
                 name="address"
-                value={form.address}
-                onChange={handleChange}
+                defaultValue={formValues.address}
                 rows={2}
                 placeholder="Jalan, RT/RW, desa, kecamatan"
                 className={`${inputClass} resize-y`}
@@ -159,13 +199,16 @@ export default function ContributionForm({
             </div>
 
             {/* Google Maps */}
+            {/* Google Maps */}
             <div>
-              <label className={labelClass}>Tautan Google Maps</label>
+              <label className={labelClass} htmlFor="contribution-maps">
+                Tautan Google Maps
+              </label>
               <input
+                id="contribution-maps"
                 name="mapsUrl"
                 type="url"
-                value={form.mapsUrl}
-                onChange={handleChange}
+                defaultValue={formValues.mapsUrl}
                 placeholder="https://maps.app.goo.gl/..."
                 className={inputClass}
               />
@@ -177,13 +220,16 @@ export default function ContributionForm({
             {/* Ketersediaan dan jam akses */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className={labelClass}>
+                <label
+                  className={labelClass}
+                  htmlFor="contribution-availability"
+                >
                   Ketersediaan air saat ini
                 </label>
                 <select
+                  id="contribution-availability"
                   name="availability"
-                  value={form.availability}
-                  onChange={handleChange}
+                  defaultValue={formValues.availability}
                   className={inputClass}
                 >
                   <option>Tersedia</option>
@@ -194,11 +240,16 @@ export default function ContributionForm({
               </div>
 
               <div>
-                <label className={labelClass}>Jam akses</label>
+                <label
+                  className={labelClass}
+                  htmlFor="contribution-access-hours"
+                >
+                  Jam akses
+                </label>
                 <input
+                  id="contribution-access-hours"
                   name="accessHours"
-                  value={form.accessHours}
-                  onChange={handleChange}
+                  defaultValue={formValues.accessHours}
                   placeholder="Contoh: 06.00 - 18.00"
                   className={inputClass}
                 />
@@ -208,21 +259,31 @@ export default function ContributionForm({
             {/* Pengelola */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className={labelClass}>Nama pengelola</label>
+                <label
+                  className={labelClass}
+                  htmlFor="contribution-manager"
+                >
+                  Nama pengelola
+                </label>
                 <input
+                  id="contribution-manager"
                   name="manager"
-                  value={form.manager}
-                  onChange={handleChange}
+                  defaultValue={formValues.manager}
                   className={inputClass}
                 />
               </div>
 
               <div>
-                <label className={labelClass}>Kontak pengelola</label>
+                <label
+                  className={labelClass}
+                  htmlFor="contribution-manager-contact"
+                >
+                  Kontak pengelola
+                </label>
                 <input
+                  id="contribution-manager-contact"
                   name="managerContact"
-                  value={form.managerContact}
-                  onChange={handleChange}
+                  defaultValue={formValues.managerContact}
                   className={inputClass}
                 />
               </div>
@@ -230,13 +291,16 @@ export default function ContributionForm({
 
             {/* Sumber informasi */}
             <div>
-              <label className={labelClass}>
+              <label
+                className={labelClass}
+                htmlFor="contribution-information-source"
+              >
                 Sumber informasi (opsional)
               </label>
               <select
+                id="contribution-information-source"
                 name="informationSource"
-                value={form.informationSource}
-                onChange={handleChange}
+                defaultValue={formValues.informationSource}
                 className={inputClass}
               >
                 <option value="">Pilih sumber informasi</option>
@@ -250,11 +314,13 @@ export default function ContributionForm({
 
             {/* Catatan tambahan */}
             <div>
-              <label className={labelClass}>Catatan tambahan</label>
+              <label className={labelClass} htmlFor="contribution-note">
+                Catatan tambahan
+              </label>
               <textarea
+                id="contribution-note"
                 name="note"
-                value={form.note}
-                onChange={handleChange}
+                defaultValue={formValues.note}
                 rows={3}
                 placeholder="Biaya, antrean, aturan penggunaan"
                 className={`${inputClass} resize-y`}
@@ -267,14 +333,14 @@ export default function ContributionForm({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full px-4 py-2.5 text-xs font-medium text-[#176B78] transition hover:bg-[#EAF5F4]"
+              className="rounded-full px-4 py-2.5 text-xs font-medium text-aira-primary transition hover:bg-[#EAF5F4]"
             >
               Batal
             </button>
 
             <button
               type="submit"
-              className="inline-flex items-center gap-2 rounded-full bg-[#176B78] px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#125762]"
+              className="inline-flex items-center gap-2 rounded-full bg-aira-primary px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#125762]"
             >
               <Send size={14} />
               {editData ? "Kirim Ulang" : "Kirim untuk Verifikasi"}
@@ -284,4 +350,4 @@ export default function ContributionForm({
       </div>
     </div>
   );
-} 
+}
