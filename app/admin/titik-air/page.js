@@ -1,21 +1,25 @@
-export default function KelolaTitikAirPage() {
+import AdminSidebar from "@/components/admin/AdminSidebar";
+import KelolaTitikAir from "@/components/admin/titik-air/KelolaTitikAir";
+import { MOCK_ADMIN } from "@/data/admin/mockAdmin";
+import { ambilTitikAirTerverifikasi } from "@/services/adminTitikAirService";
+
+export const metadata = {
+  title: "Kelola Titik Air | Panel Admin AIRA",
+};
+
+// Kelola Titik Air (C03). Akses admin diperiksa oleh app/admin/layout.js.
+export default async function KelolaTitikAirPage() {
+  const titik = await ambilTitikAirTerverifikasi();
+
   return (
-    <main className="min-h-screen bg-aira-bg p-6 lg:p-8">
-      <div className="mx-auto max-w-5xl">
-        <h1 className="text-2xl font-bold text-aira-primary">
-          Kelola Titik Air
-        </h1>
+    <div className="min-h-[calc(100dvh-72px)] bg-aira-bg">
+      <div className="mx-auto grid w-full max-w-[1280px] items-start gap-6 px-5 py-6 md:grid-cols-[186px_minmax(0,1fr)]">
+        <AdminSidebar admin={MOCK_ADMIN} />
 
-        <p className="mt-2 text-sm text-aira-text/60">
-          Halaman pengelolaan dan pembaruan data titik air AIRA.
-        </p>
-
-        <div className="mt-8 rounded-[24px] bg-white p-8 text-center shadow-soft">
-          <p className="text-sm text-aira-text/60">
-            Halaman ini akan dikembangkan pada tahap berikutnya.
-          </p>
+        <div className="min-w-0">
+          <KelolaTitikAir awal={titik} />
         </div>
       </div>
-    </main>
+    </div>
   );
 }
