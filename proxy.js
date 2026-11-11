@@ -50,6 +50,7 @@ export async function proxy(request) {
 
     const redirectResponse = NextResponse.redirect(redirectUrl);
 
+    // Pertahankan cookies yang diperbarui Supabase.
     response.cookies.getAll().forEach((cookie) => {
       redirectResponse.cookies.set(cookie);
     });
@@ -57,13 +58,12 @@ export async function proxy(request) {
     return redirectResponse;
   }
 
-  // Pengunjung belum login tidak boleh membuka dashboard.
+  // Pengunjung yang belum login tidak boleh membuka dashboard.
   if ((isDashboardPath || isAdminPath) && !user) {
     return redirectWithCookies("/masuk");
   }
 
-  // Pengunjung tanpa session dapat melanjutkan
-  // ke halaman publik dan halaman autentikasi.
+  // Pengunjung tanpa session tetap dapat mengakses halaman publik.
   if (!user) {
     return response;
   }
@@ -78,7 +78,7 @@ export async function proxy(request) {
     .eq("user_id", user.id)
     .maybeSingle();
 
-  // Jika profil tidak ditemukan.
+  // Jika profil tidak ditemukan atau terjadi kesalahan.
   if (profileError || !profile) {
     if (isDashboardPath || isAdminPath) {
       return redirectWithCookies("/masuk?error=profile");
@@ -96,7 +96,16 @@ export async function proxy(request) {
     return response;
   }
 
-  // Admin yang membuka halaman login atau daftar.
+  // Tolak role yang tidak dikenal.
+  if (!["user", "admin"].includes(profile.role)) {
+    if (isDashboardPath || isAdminPath || isAuthPath) {
+      return redirectWithCookies("/masuk?error=role");
+    }
+
+    return response;
+  }
+
+  // Pengguna yang sudah login tidak perlu membuka halaman masuk/daftar.
   if (isAuthPath) {
     return redirectWithCookies(
       profile.role === "admin" ? "/admin" : "/dashboard"
@@ -117,14 +126,6 @@ export async function proxy(request) {
 }
 
 export const config = {
-  matcher: [
-    "/dashboard/:path*",
-    "/admin/:path*",
-    "/masuk/:path*",
-    "/daftar",
-  ],
-  // Berjalan di semua halaman (kecuali aset statis) agar sesi Supabase diperbarui
-  // dan Navbar publik bisa membaca status login yang valid.
   matcher: [
     "/((?!_next/static|_next/image|favicon.ico|logo.png|images/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)",
   ],
