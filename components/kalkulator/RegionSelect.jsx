@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MapPin } from "lucide-react";
-
 import Combobox from "@/components/navigasi/Combobox";
 import FieldLabel from "@/components/kalkulator/FieldLabel";
 import { createClient } from "@/lib/supabase/client";
 
-export default function RegionSelect({ value = "", onChange }) {
-  // Membuat Supabase client satu kali untuk komponen ini.
-  const [supabase] = useState(() => createClient());
+export default function RegionSelect({
+  value = "",
+  onChange,
+  onRegionChange,
+}) {
+  const supabase = useMemo(() => createClient(), []);
 
   const [provinsi, setProvinsi] = useState([]);
   const [kabupaten, setKabupaten] = useState([]);
@@ -25,39 +27,49 @@ export default function RegionSelect({ value = "", onChange }) {
 
   const [error, setError] = useState("");
 
-  // Menandai perubahan lokasi yang berasal dari pilihan pengguna.
   const perubahanInternal = useRef(null);
 
-  // =====================================================
-  // 1. MEMUAT DATA PROVINSI DARI SUPABASE
-  // =====================================================
+  // ==========================================
+  // 1. MENGAMBIL DATA PROVINSI
+  // ==========================================
 
   useEffect(() => {
     let aktif = true;
 
     async function muatProvinsi() {
       try {
+        setLoadingProvinsi(true);
         setError("");
 
-        const { data, error: queryError } = await supabase
+        console.log("========== DEBUG SUPABASE WILAYAH ==========");
+        console.log("Mulai mengambil data provinsi...");
+
+        const { data, error } = await supabase
           .from("provinces")
           .select("province_id, province_name")
           .order("province_name", { ascending: true });
 
-        if (queryError) {
-          throw queryError;
-        }
+        // DEBUG: HASIL QUERY PROVINSI
+        console.log("DATA PROVINSI:", data);
+        console.log("JUMLAH PROVINSI:", data?.length);
+        console.log("ERROR SUPABASE:", error);
+        console.log("============================================");
+
+        if (error) throw error;
 
         if (aktif) {
-          setProvinsi(data || []);
+          setProvinsi(
+            (data || []).map((item) => ({
+              id: String(item.province_id),
+              name: item.province_name,
+            }))
+          );
         }
       } catch (err) {
-        console.error("Gagal memuat provinsi:", err);
+        console.error("Gagal mengambil provinsi:", err);
 
         if (aktif) {
-          setError(
-            "Data provinsi gagal dimuat. Periksa koneksi atau akses data wilayah."
-          );
+          setError("Data provinsi gagal dimuat.");
         }
       } finally {
         if (aktif) {
@@ -73,125 +85,134 @@ export default function RegionSelect({ value = "", onChange }) {
     };
   }, [supabase]);
 
-  // =====================================================
-  // 2. MEMULIHKAN LOKASI YANG SUDAH TERSIMPAN
-  // =====================================================
+  // ==========================================
+  // 2. FUNGSI MENGAMBIL KABUPATEN / KOTA
+  // ==========================================
+
+  async function ambilKabupaten(idProvinsi) {
+    const { data, error } = await supabase
+      .from("city_regencies")
+      .select("city_regency_id, city_regency_name")
+      .eq("provinces_id", Number(idProvinsi))
+      .order("city_regency_name", { ascending: true });
+
+    console.log("DATA KABUPATEN/KOTA:", data);
+    console.log("JUMLAH KABUPATEN/KOTA:", data?.length);
+    console.log("ERROR KABUPATEN/KOTA:", error);
+
+    if (error) throw error;
+
+    return (data || []).map((item) => ({
+      id: String(item.city_regency_id),
+      name: item.city_regency_name,
+    }));
+  }
+
+  // ==========================================
+  // 3. FUNGSI MENGAMBIL KECAMATAN
+  // ==========================================
+
+  async function ambilKecamatan(idProvinsi, idKabupaten) {
+    const { data, error } = await supabase
+      .from("districts")
+      .select("district_id, district_name")
+      .eq("province_id", Number(idProvinsi))
+      .eq("city_regency_id", Number(idKabupaten))
+      .order("district_name", { ascending: true });
+
+    console.log("DATA KECAMATAN:", data);
+    console.log("JUMLAH KECAMATAN:", data?.length);
+    console.log("ERROR KECAMATAN:", error);
+
+    if (error) throw error;
+
+    return (data || []).map((item) => ({
+      id: String(item.district_id),
+      name: item.district_name,
+    }));
+  }
+
+  // ==========================================
+  // 4. MEMULIHKAN LOKASI TERSIMPAN
+  // ==========================================
 
   useEffect(() => {
-    // Tunggu sampai data provinsi selesai dimuat.
     if (!provinsi.length) return;
 
-    // Jika perubahan berasal dari pilihan pengguna,
-    // tidak perlu menjalankan pemulihan lokasi.
     if (perubahanInternal.current === value) {
       perubahanInternal.current = null;
       return;
     }
 
-    // Lokasi kosong tidak perlu dipulihkan.
-    if (!value) return;
+    if (!value) {
+      setProvinsiId("");
+      setKabupatenId("");
+      setKecamatanId("");
+      setKabupaten([]);
+      setKecamatan([]);
+      return;
+    }
 
     let aktif = true;
 
     async function pulihkanLokasi() {
       try {
-        const bagian = value
-          .split(",")
-          .map((item) => item.trim());
+        const bagian = value.split(",").map((item) => item.trim());
 
         if (bagian.length !== 3) return;
 
-        const [
-          namaKecamatan,
-          namaKabupaten,
-          namaProvinsi,
-        ] = bagian;
+        const [namaKecamatan, namaKabupaten, namaProvinsi] = bagian;
 
-        // Cari provinsi berdasarkan nama.
         const dataProvinsi = provinsi.find(
-          (item) => item.province_name === namaProvinsi
+          (item) => item.name === namaProvinsi
         );
 
-        if (!dataProvinsi) {
-          throw new Error(
-            "Provinsi pada lokasi tersimpan tidak ditemukan."
-          );
-        }
+        if (!dataProvinsi) return;
 
-        const idProvinsi = String(dataProvinsi.province_id);
+        setProvinsiId(dataProvinsi.id);
 
-        // Ambil kabupaten/kota berdasarkan provinsi.
-        const {
-          data: dataKabupaten,
-          error: errorKabupaten,
-        } = await supabase
-          .from("city_regencies")
-          .select(
-            "city_regency_id, provinces_id, city_regency_name"
-          )
-          .eq("provinces_id", idProvinsi)
-          .order("city_regency_name", { ascending: true });
+        const dataKabupaten = await ambilKabupaten(dataProvinsi.id);
 
-        if (errorKabupaten) throw errorKabupaten;
         if (!aktif) return;
 
-        const kabupatenTerpilih = (dataKabupaten || []).find(
-          (item) => item.city_regency_name === namaKabupaten
+        setKabupaten(dataKabupaten);
+
+        const kabupatenTerpilih = dataKabupaten.find(
+          (item) => item.name === namaKabupaten
         );
 
-        if (!kabupatenTerpilih) {
-          throw new Error(
-            "Kabupaten/kota pada lokasi tersimpan tidak ditemukan."
-          );
-        }
+        if (!kabupatenTerpilih) return;
 
-        const idKabupaten = String(
-          kabupatenTerpilih.city_regency_id
+        setKabupatenId(kabupatenTerpilih.id);
+
+        const dataKecamatan = await ambilKecamatan(
+          dataProvinsi.id,
+          kabupatenTerpilih.id
         );
 
-        // Ambil kecamatan berdasarkan kabupaten dan provinsi.
-        const {
-          data: dataKecamatan,
-          error: errorKecamatan,
-        } = await supabase
-          .from("districts")
-          .select(
-            "district_id, province_id, city_regency_id, district_name"
-          )
-          .eq("city_regency_id", idKabupaten)
-          .eq("province_id", idProvinsi)
-          .order("district_name", { ascending: true });
-
-        if (errorKecamatan) throw errorKecamatan;
         if (!aktif) return;
 
-        const kecamatanTerpilih = (dataKecamatan || []).find(
-          (item) => item.district_name === namaKecamatan
+        setKecamatan(dataKecamatan);
+
+        const kecamatanTerpilih = dataKecamatan.find(
+          (item) => item.name === namaKecamatan
         );
 
-        if (!kecamatanTerpilih) {
-          throw new Error(
-            "Kecamatan pada lokasi tersimpan tidak ditemukan."
-          );
-        }
+        if (!kecamatanTerpilih) return;
 
-        // Pulihkan seluruh pilihan wilayah.
-        setProvinsiId(idProvinsi);
+        setKecamatanId(kecamatanTerpilih.id);
 
-        setKabupaten(dataKabupaten || []);
-        setKabupatenId(idKabupaten);
-
-        setKecamatan(dataKecamatan || []);
-        setKecamatanId(String(kecamatanTerpilih.district_id));
-
-        setError("");
+        onRegionChange?.({
+          province_id: Number(dataProvinsi.id),
+          city_regency_id: Number(kabupatenTerpilih.id),
+          district_id: Number(kecamatanTerpilih.id),
+          location: value,
+        });
       } catch (err) {
         console.error("Gagal memulihkan lokasi:", err);
 
         if (aktif) {
-          setError(
-            "Lokasi sebelumnya gagal dipulihkan. Silakan pilih ulang wilayah."
-          );
+          setError("Lokasi sebelumnya gagal dipulihkan.");
         }
       }
     }
@@ -203,14 +224,12 @@ export default function RegionSelect({ value = "", onChange }) {
     };
   }, [provinsi, value, supabase]);
 
-  // =====================================================
-  // 3. MEMILIH PROVINSI
-  // =====================================================
+  // ==========================================
+  // 5. MEMILIH PROVINSI
+  // ==========================================
 
   async function pilihProvinsi(id) {
     setProvinsiId(id);
-
-    // Kosongkan pilihan wilayah di bawahnya.
     setKabupatenId("");
     setKecamatanId("");
 
@@ -220,149 +239,110 @@ export default function RegionSelect({ value = "", onChange }) {
     setError("");
 
     perubahanInternal.current = "";
-    onChange("");
+    onChange?.("");
+    onRegionChange?.(null);
 
     if (!id) return;
 
     try {
       setLoadingKabupaten(true);
 
-      const { data, error: queryError } = await supabase
-        .from("city_regencies")
-        .select(
-          "city_regency_id, provinces_id, city_regency_name"
-        )
-        .eq("provinces_id", id)
-        .order("city_regency_name", { ascending: true });
+      const data = await ambilKabupaten(id);
 
-      if (queryError) throw queryError;
-
-      setKabupaten(data || []);
+      setKabupaten(data);
     } catch (err) {
-      console.error("Gagal memuat kabupaten/kota:", err);
+      console.error("Gagal mengambil kabupaten:", err);
       setError("Kabupaten/kota gagal dimuat.");
     } finally {
       setLoadingKabupaten(false);
     }
   }
 
-  // =====================================================
-  // 4. MEMILIH KABUPATEN / KOTA
-  // =====================================================
+  // ==========================================
+  // 6. MEMILIH KABUPATEN / KOTA
+  // ==========================================
 
   async function pilihKabupaten(id) {
     setKabupatenId(id);
-
-    // Kosongkan pilihan kecamatan sebelumnya.
     setKecamatanId("");
-    setKecamatan([]);
 
+    setKecamatan([]);
     setError("");
 
     perubahanInternal.current = "";
-    onChange("");
+    onChange?.("");
+    onRegionChange?.(null);
 
     if (!id) return;
 
     try {
       setLoadingKecamatan(true);
 
-      const { data, error: queryError } = await supabase
-        .from("districts")
-        .select(
-          "district_id, province_id, city_regency_id, district_name"
-        )
-        .eq("city_regency_id", id)
-        .eq("province_id", provinsiId)
-        .order("district_name", { ascending: true });
+      const data = await ambilKecamatan(provinsiId, id);
 
-      if (queryError) throw queryError;
-
-      setKecamatan(data || []);
+      setKecamatan(data);
     } catch (err) {
-      console.error("Gagal memuat kecamatan:", err);
+      console.error("Gagal mengambil kecamatan:", err);
       setError("Kecamatan gagal dimuat.");
     } finally {
       setLoadingKecamatan(false);
     }
   }
 
-  // =====================================================
-  // 5. MEMILIH KECAMATAN
-  // =====================================================
+  // ==========================================
+  // 7. MEMILIH KECAMATAN
+  // ==========================================
 
   function pilihKecamatan(id) {
     setKecamatanId(id);
 
     const namaProvinsi = provinsi.find(
-      (item) => String(item.province_id) === String(provinsiId)
-    )?.province_name;
+      (item) => item.id === provinsiId
+    )?.name;
 
     const namaKabupaten = kabupaten.find(
-      (item) =>
-        String(item.city_regency_id) === String(kabupatenId)
-    )?.city_regency_name;
+      (item) => item.id === kabupatenId
+    )?.name;
 
     const namaKecamatan = kecamatan.find(
-      (item) => String(item.district_id) === String(id)
-    )?.district_name;
+      (item) => item.id === id
+    )?.name;
 
-    if (
-      !id ||
-      !namaProvinsi ||
-      !namaKabupaten ||
-      !namaKecamatan
-    ) {
+    if (!id || !namaProvinsi || !namaKabupaten || !namaKecamatan) {
       perubahanInternal.current = "";
-      onChange("");
+      onChange?.("");
+      onRegionChange?.(null);
       return;
     }
 
-    // Format lokasi dipertahankan:
-    // Kecamatan, Kabupaten/Kota, Provinsi
     const lokasiLengkap =
       `${namaKecamatan}, ${namaKabupaten}, ${namaProvinsi}`;
 
     perubahanInternal.current = lokasiLengkap;
-    onChange(lokasiLengkap);
 
-    setError("");
+    onChange?.(lokasiLengkap);
+
+    onRegionChange?.({
+      province_id: Number(provinsiId),
+      city_regency_id: Number(kabupatenId),
+      district_id: Number(id),
+      location: lokasiLengkap,
+    });
   }
 
-  // =====================================================
-  // 6. DATA UNTUK COMBOBOX
-  // =====================================================
+  // ==========================================
+  // 8. MENGUBAH ID MENJADI NAMA
+  // ==========================================
 
-  const namaDariId = (daftar, id, kolomId, kolomNama) =>
-    daftar.find(
-      (item) => String(item[kolomId]) === String(id)
-    )?.[kolomNama] ?? "";
+  const namaDariId = (daftar, id) =>
+    daftar.find((item) => item.id === id)?.name ?? "";
 
-  const idDariNama = (daftar, nama, kolomId, kolomNama) =>
-    daftar.find(
-      (item) => item[kolomNama] === nama
-    )?.[kolomId] ?? "";
+  const idDariNama = (daftar, nama) =>
+    daftar.find((item) => item.name === nama)?.id ?? "";
 
-  const namaProvinsiTerpilih = namaDariId(
-    provinsi,
-    provinsiId,
-    "province_id",
-    "province_name"
-  );
-
-  const namaKabupatenTerpilih = namaDariId(
-    kabupaten,
-    kabupatenId,
-    "city_regency_id",
-    "city_regency_name"
-  );
-
-  const namaKecamatanTerpilih = namaDariId(
-    kecamatan,
-    kecamatanId,
-    "district_id",
-    "district_name"
-  );
+  const namaProvinsiTerpilih = namaDariId(provinsi, provinsiId);
+  const namaKabupatenTerpilih = namaDariId(kabupaten, kabupatenId);
+  const namaKecamatanTerpilih = namaDariId(kecamatan, kecamatanId);
 
   const lokasiTerpilih = [
     namaKecamatanTerpilih,
@@ -372,9 +352,9 @@ export default function RegionSelect({ value = "", onChange }) {
     .filter(Boolean)
     .join(", ");
 
-  // =====================================================
-  // 7. TAMPILAN
-  // =====================================================
+  // ==========================================
+  // 9. TAMPILAN
+  // ==========================================
 
   return (
     <>
@@ -386,80 +366,46 @@ export default function RegionSelect({ value = "", onChange }) {
         <Combobox
           label="Provinsi"
           placeholder="Pilih provinsi"
-          options={provinsi.map((item) => item.province_name)}
+          options={provinsi.map((item) => item.name)}
           value={namaProvinsiTerpilih}
           memuat={loadingProvinsi}
           emptyText="Wilayah tidak ditemukan."
           onSelect={(nama) =>
-            pilihProvinsi(
-              String(
-                idDariNama(
-                  provinsi,
-                  nama,
-                  "province_id",
-                  "province_name"
-                )
-              )
-            )
+            pilihProvinsi(idDariNama(provinsi, nama))
           }
         />
 
         <Combobox
           label="Kabupaten / Kota"
           placeholder="Pilih kabupaten / kota"
-          options={kabupaten.map(
-            (item) => item.city_regency_name
-          )}
+          options={kabupaten.map((item) => item.name)}
           value={namaKabupatenTerpilih}
-          disabled={!provinsiId || loadingKabupaten}
+          disabled={!provinsiId}
           memuat={loadingKabupaten}
           hint="Pilih provinsi dahulu"
-          emptyText="Kabupaten/kota tidak ditemukan."
+          emptyText="Wilayah tidak ditemukan."
           onSelect={(nama) =>
-            pilihKabupaten(
-              String(
-                idDariNama(
-                  kabupaten,
-                  nama,
-                  "city_regency_id",
-                  "city_regency_name"
-                )
-              )
-            )
+            pilihKabupaten(idDariNama(kabupaten, nama))
           }
         />
 
         <Combobox
           label="Kecamatan"
           placeholder="Pilih kecamatan"
-          options={kecamatan.map(
-            (item) => item.district_name
-          )}
+          options={kecamatan.map((item) => item.name)}
           value={namaKecamatanTerpilih}
-          disabled={!kabupatenId || loadingKecamatan}
+          disabled={!kabupatenId}
           memuat={loadingKecamatan}
           hint="Pilih kabupaten / kota dahulu"
-          emptyText="Kecamatan tidak ditemukan."
+          emptyText="Wilayah tidak ditemukan."
           onSelect={(nama) =>
-            pilihKecamatan(
-              String(
-                idDariNama(
-                  kecamatan,
-                  nama,
-                  "district_id",
-                  "district_name"
-                )
-              )
-            )
+            pilihKecamatan(idDariNama(kecamatan, nama))
           }
         />
       </div>
 
       {error && (
-        <p
-          role="alert"
-          className="mt-3 text-sm text-aira-coral-dark"
-        >
+        <p role="alert" className="mt-3 text-sm text-aira-coral-dark">
           {error}
         </p>
       )}
