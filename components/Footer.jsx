@@ -26,7 +26,7 @@ const footerGroups = [
       { label: "Dashboard", href: "/dashboard" },
       {
         label: "Kondisi Air Rumah Tangga",
-        href: "/dashboard/monitoring",
+        href: "/dashboard/kondisi-air",
       },
       {
         label: "Kontribusi Titik Air",

@@ -123,4 +123,9 @@ export const config = {
     "/masuk/:path*",
     "/daftar",
   ],
+  // Berjalan di semua halaman (kecuali aset statis) agar sesi Supabase diperbarui
+  // dan Navbar publik bisa membaca status login yang valid.
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|logo.png|images/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)",
+  ],
 };
