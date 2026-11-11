@@ -90,7 +90,6 @@ export async function register(formData) {
 
   const supabase = await createClient();
 
-  // Callback khusus verifikasi registrasi.
   const emailRedirectTo = createCallbackUrl(
     "/masuk?verified=1"
   );
@@ -107,7 +106,11 @@ export async function register(formData) {
   });
 
   if (error) {
-    console.error("Register error:", error.message);
+    console.error("REGISTER ERROR:", {
+      message: error.message,
+      code: error.code,
+      status: error.status,
+    });
 
     return {
       error:
@@ -172,12 +175,54 @@ export async function login(formData) {
     password,
   });
 
-  if (authError || !authData.user) {
+  // ------------------------------------------
+  // PEMERIKSAAN AUTENTIKASI SUPABASE
+  // ------------------------------------------
+
+  if (authError || !authData?.user) {
+    console.error("LOGIN AUTH ERROR:", {
+      message: authError?.message,
+      code: authError?.code,
+      status: authError?.status,
+    });
+
+    if (
+      authError?.code === "email_not_confirmed"
+    ) {
+      return {
+        error:
+          "Email belum dikonfirmasi. Silakan periksa email kamu dan lakukan konfirmasi terlebih dahulu.",
+      };
+    }
+
+    if (
+      authError?.status === 429 ||
+      authError?.code === "over_request_rate_limit"
+    ) {
+      return {
+        error:
+          "Terlalu banyak percobaan login. Silakan tunggu beberapa saat sebelum mencoba kembali.",
+      };
+    }
+
+    if (
+      authError?.code === "invalid_credentials"
+    ) {
+      return {
+        error:
+          "Email atau password yang kamu masukkan salah. Periksa kembali data login kamu.",
+      };
+    }
+
     return {
       error:
-        "Email atau password salah, atau email belum dikonfirmasi.",
+        "Login gagal karena terjadi masalah autentikasi. Silakan coba kembali.",
     };
   }
+
+  // ------------------------------------------
+  // PEMERIKSAAN PROFIL PENGGUNA
+  // ------------------------------------------
 
   const {
     data: profile,
@@ -190,7 +235,26 @@ export async function login(formData) {
     .eq("user_id", authData.user.id)
     .maybeSingle();
 
-  if (profileError || !profile) {
+  if (profileError) {
+    console.error("LOGIN PROFILE ERROR:", {
+      message: profileError.message,
+      code: profileError.code,
+    });
+
+    await supabase.auth.signOut();
+
+    return {
+      error:
+        "Gagal mengambil data profil akun. Silakan coba kembali atau hubungi administrator AIRA.",
+    };
+  }
+
+  if (!profile) {
+    console.error(
+      "LOGIN PROFILE NOT FOUND:",
+      authData.user.id
+    );
+
     await supabase.auth.signOut();
 
     return {
@@ -198,6 +262,10 @@ export async function login(formData) {
         "Profil pengguna tidak ditemukan. Silakan hubungi administrator AIRA.",
     };
   }
+
+  // ------------------------------------------
+  // PEMERIKSAAN STATUS AKUN
+  // ------------------------------------------
 
   if (profile.account_status !== "active") {
     await supabase.auth.signOut();
@@ -207,6 +275,10 @@ export async function login(formData) {
         "Akun Anda tidak aktif. Silakan hubungi administrator AIRA.",
     };
   }
+
+  // ------------------------------------------
+  // PENGALIHAN BERDASARKAN ROLE
+  // ------------------------------------------
 
   if (profile.role === "admin") {
     redirect("/admin");
@@ -231,7 +303,11 @@ export async function login(formData) {
 export async function logout() {
   const supabase = await createClient();
 
-  await supabase.auth.signOut();
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    console.error("LOGOUT ERROR:", error.message);
+  }
 
   redirect("/masuk");
 }
@@ -259,9 +335,6 @@ export async function resetPassword(formData) {
 
   const supabase = await createClient();
 
-  // Callback khusus pemulihan password.
-  // Setelah token berhasil diverifikasi,
-  // pengguna diarahkan ke halaman reset password.
   const redirectTo = createCallbackUrl(
     "/masuk/reset-password"
   );
@@ -272,7 +345,11 @@ export async function resetPassword(formData) {
     });
 
   if (error) {
-    console.error("Reset password error:", error.message);
+    console.error("RESET PASSWORD ERROR:", {
+      message: error.message,
+      code: error.code,
+      status: error.status,
+    });
 
     return {
       error:
@@ -331,7 +408,11 @@ export async function updatePassword(formData) {
   });
 
   if (error) {
-    console.error("Update password error:", error.message);
+    console.error("UPDATE PASSWORD ERROR:", {
+      message: error.message,
+      code: error.code,
+      status: error.status,
+    });
 
     return {
       error:

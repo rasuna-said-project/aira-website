@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -24,7 +24,8 @@ export default function AccountForm({ profile }) {
       setMessage(result);
 
       if (result.success) {
-        form.reset();
+        // Memperbarui data profil dari server
+        // tanpa mengosongkan input formulir.
         router.refresh();
       }
     });
@@ -32,7 +33,7 @@ export default function AccountForm({ profile }) {
 
   return (
     <section className="rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgba(30,80,90,0.07)] sm:p-7">
-      <h2 className="mb-5 text-base font-semibold text-[#176B78]">
+      <h2 className="mb-5 text-base font-semibold text-aira-primary">
         Data akun
       </h2>
 
@@ -53,12 +54,13 @@ export default function AccountForm({ profile }) {
               name="full_name"
               type="text"
               defaultValue={profile?.full_name || ""}
+              maxLength={150}
               required
-              className="h-10 w-full rounded-xl border border-[#C9DDE2] px-3 text-sm text-[#526168] outline-none transition focus:border-[#176B78] focus:ring-2 focus:ring-[#176B78]/10"
+              className="h-10 w-full rounded-xl border border-[#C9DDE2] px-3 text-sm text-[#526168] outline-none transition focus:border-aira-primary focus:ring-2 focus:ring-aira-primary/10"
             />
           </div>
 
-          {/* Email - sementara tidak dapat diedit */}
+          {/* Email - tidak dapat diedit */}
           <div>
             <label
               htmlFor="email"
@@ -81,7 +83,7 @@ export default function AccountForm({ profile }) {
             </p>
           </div>
 
-          {/* Nomor WhatsApp - belum terhubung database */}
+          {/* Nomor WhatsApp - sudah aktif */}
           <div>
             <label
               htmlFor="phone_number"
@@ -92,19 +94,22 @@ export default function AccountForm({ profile }) {
 
             <input
               id="phone_number"
+              name="phone_number"
               type="tel"
-              value={profile?.phone_number || ""}
-              disabled
-              placeholder="Fitur belum tersedia"
-              className="h-10 w-full cursor-not-allowed rounded-xl border border-[#C9DDE2] bg-[#F5F8F8] px-3 text-sm text-[#A1ADB1] outline-none"
+              defaultValue={profile?.phone_number || ""}
+              placeholder="+6281234567890"
+              maxLength={20}
+              autoComplete="tel"
+              className="h-10 w-full rounded-xl border border-[#C9DDE2] px-3 text-sm text-[#526168] outline-none transition focus:border-aira-primary focus:ring-2 focus:ring-aira-primary/10"
             />
 
             <p className="mt-1.5 text-[10px] text-[#98A3A7]">
-              Penyimpanan nomor WhatsApp akan tersedia pada pengembangan berikutnya.
+              Masukkan nomor WhatsApp dengan kode negara,
+              misalnya +6281234567890.
             </p>
           </div>
 
-          {/* Bahasa - segera hadir */}
+          {/* Bahasa - belum tersedia */}
           <div>
             <label
               htmlFor="language"
@@ -112,7 +117,7 @@ export default function AccountForm({ profile }) {
             >
               Bahasa
 
-              <span className="rounded-full bg-[#F4EBDD] px-2 py-0.5 text-[9px] font-medium text-[#176B78]">
+              <span className="rounded-full bg-aira-sand px-2 py-0.5 text-[9px] font-medium text-aira-primary">
                 Segera hadir
               </span>
             </label>
@@ -146,7 +151,7 @@ export default function AccountForm({ profile }) {
               type="password"
               minLength={8}
               autoComplete="new-password"
-              className="h-10 w-full rounded-xl border border-[#C9DDE2] px-3 text-sm outline-none transition focus:border-[#176B78] focus:ring-2 focus:ring-[#176B78]/10"
+              className="h-10 w-full rounded-xl border border-[#C9DDE2] px-3 text-sm outline-none transition focus:border-aira-primary focus:ring-2 focus:ring-aira-primary/10"
             />
 
             <p className="mt-1 text-[10px] text-[#98A3A7]">
@@ -169,7 +174,7 @@ export default function AccountForm({ profile }) {
               type="password"
               minLength={8}
               autoComplete="new-password"
-              className="h-10 w-full rounded-xl border border-[#C9DDE2] px-3 text-sm outline-none transition focus:border-[#176B78] focus:ring-2 focus:ring-[#176B78]/10"
+              className="h-10 w-full rounded-xl border border-[#C9DDE2] px-3 text-sm outline-none transition focus:border-aira-primary focus:ring-2 focus:ring-aira-primary/10"
             />
           </div>
         </div>
@@ -178,9 +183,10 @@ export default function AccountForm({ profile }) {
         {message && (
           <div
             role="status"
+            aria-live="polite"
             className={`rounded-xl px-4 py-3 text-xs ${
               message.success
-                ? "bg-[#E7F4EF] text-[#176B78]"
+                ? "bg-aira-success text-aira-primary"
                 : "bg-red-50 text-red-600"
             }`}
           >
@@ -192,11 +198,11 @@ export default function AccountForm({ profile }) {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-full bg-[#176B78] px-6 py-3 text-xs font-semibold text-white shadow-[0_5px_15px_rgba(23,107,120,0.15)] transition hover:bg-[#125966] disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-full bg-aira-primary px-6 py-3 text-xs font-semibold text-white shadow-[0_5px_15px_rgba(23,107,120,0.15)] transition hover:bg-aira-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isPending ? "Menyimpan..." : "Simpan Perubahan"}
         </button>
       </form>
     </section>
   );
-} 
+}
