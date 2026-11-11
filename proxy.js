@@ -12,40 +12,115 @@ export async function proxy(request) {
         getAll() {
           return request.cookies.getAll();
         },
+
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          // Perbarui cookies pada request.
+          cookiesToSet.forEach(({ name, value }) => {
+            request.cookies.set(name, value);
+          });
+
+          // Buat ulang response dengan request terbaru.
           response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
+
+          // Simpan cookies pada response.
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
         },
       },
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  // Periksa session dan perbarui token jika diperlukan.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const pathname = request.nextUrl.pathname;
 
-  const isProtectedPath = pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
-  const isAuthPath = pathname === "/masuk" || pathname === "/daftar";
+  const isDashboardPath = pathname.startsWith("/dashboard");
+  const isAdminPath = pathname.startsWith("/admin");
 
-  // Proteksi: Belum login mencoba akses /dashboard atau /admin
-  if (isProtectedPath && !user) {
+  const isAuthPath =
+    pathname === "/masuk" || pathname === "/daftar";
+
+  function redirectWithCookies(path) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/masuk";
-    return NextResponse.redirect(redirectUrl);
+    redirectUrl.pathname = path;
+
+    const redirectResponse = NextResponse.redirect(redirectUrl);
+
+    response.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie);
+    });
+
+    return redirectResponse;
   }
 
-  // Jika sudah login tapi mencoba ke halaman login/daftar
-  if (isAuthPath && user) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/dashboard";
-    return NextResponse.redirect(redirectUrl);
+  // Pengunjung belum login tidak boleh membuka dashboard.
+  if ((isDashboardPath || isAdminPath) && !user) {
+    return redirectWithCookies("/masuk");
+  }
+
+  // Pengunjung tanpa session dapat melanjutkan
+  // ke halaman publik dan halaman autentikasi.
+  if (!user) {
+    return response;
+  }
+
+  // Ambil role dan status akun dari tabel users.
+  const {
+    data: profile,
+    error: profileError,
+  } = await supabase
+    .from("users")
+    .select("role, account_status")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  // Jika profil tidak ditemukan.
+  if (profileError || !profile) {
+    if (isDashboardPath || isAdminPath) {
+      return redirectWithCookies("/masuk?error=profile");
+    }
+
+    return response;
+  }
+
+  // Akun yang tidak aktif tidak boleh membuka dashboard.
+  if (profile.account_status !== "active") {
+    if (isDashboardPath || isAdminPath) {
+      return redirectWithCookies("/masuk?error=inactive");
+    }
+
+    return response;
+  }
+
+  // Admin yang membuka halaman login atau daftar.
+  if (isAuthPath) {
+    return redirectWithCookies(
+      profile.role === "admin" ? "/admin" : "/dashboard"
+    );
+  }
+
+  // User biasa tidak boleh membuka dashboard admin.
+  if (isAdminPath && profile.role !== "admin") {
+    return redirectWithCookies("/dashboard");
+  }
+
+  // Admin tidak perlu membuka dashboard user.
+  if (isDashboardPath && profile.role === "admin") {
+    return redirectWithCookies("/admin");
   }
 
   return response;
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*", "/masuk", "/daftar"],
+  matcher: [
+    "/dashboard/:path*",
+    "/admin/:path*",
+    "/masuk/:path*",
+    "/daftar",
+  ],
 };

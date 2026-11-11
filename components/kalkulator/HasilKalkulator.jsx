@@ -11,7 +11,6 @@ import RingkasanKebutuhan from "@/components/kalkulator/hasil/RingkasanKebutuhan
 import EstimasiPanenHujan from "@/components/kalkulator/hasil/EstimasiPanenHujan";
 import DisclaimerLangkah from "@/components/kalkulator/hasil/DisclaimerLangkah";
 import RekomendasiCard from "@/components/kalkulator/hasil/RekomendasiCard";
-import PenjelasanAira from "@/components/kalkulator/hasil/PenjelasanAira";
 import HasilActions from "@/components/kalkulator/hasil/HasilActions";
 
 import { ambilStatusTampilan } from "@/components/kalkulator/hasil/StatusConfig";
@@ -58,19 +57,33 @@ export default function HasilKalkulator() {
       <div className="mx-auto max-w-275 px-4 py-10 sm:px-5 sm:py-14">
         <HasilHeader />
 
-        {/* BARIS 1 (lebar penuh): status + angka kebutuhan.
-            Pembungkus ini memaksa setiap anak selebar kolom, sehingga
-            StatusCard dan RingkasanKebutuhan sejajar di kiri dan kanan. */}
-        <div className="mt-8 flex w-full flex-col gap-4 *:w-full *:max-w-none!">
-          <StatusCard hasil={hasil} masukan={masukan} status={status} />
-          <RingkasanKebutuhan hasil={hasil} />
+        {/* CARD UTAMA: Status, ringkasan kebutuhan, dan penjelasan hasil. */}
+        <section
+          className={`mt-8 w-full rounded-[28px] border-2 p-6 shadow-soft sm:p-8 ${status.panel}`}
+          aria-label="Ringkasan hasil perhitungan ketahanan air"
+        >
+          <StatusCard
+            hasil={hasil}
+            masukan={masukan}
+            status={status}
+          />
+
+          <div className="mt-7 border-t border-aira-primary/10 pt-6">
+            <RingkasanKebutuhan
+              hasil={hasil}
+              masukan={masukan}
+            />
+          </div>
+        </section>
+
+        {/* Disclaimer untuk rekomendasi dan langkah yang disarankan. */}
+        <div className="mt-6 w-full">
+          <DisclaimerLangkah />
         </div>
 
-        {/* BARIS 2: langkah (kiri) + alasan & aksi (kanan).
-            Tinggi kedua kolom kini hampir sama. */}
+        {/* Rekomendasi di kiri dan aksi lanjutan di kanan. */}
         <div className="mt-6 grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
-          <div className="order-2 space-y-6 lg:order-1 lg:col-span-7">
-            <DisclaimerLangkah />
+          <div className="order-2 min-w-0 lg:order-1 lg:col-span-7">
             <RekomendasiCard
               masukan={masukan}
               hasil={hasil}
@@ -79,20 +92,17 @@ export default function HasilKalkulator() {
             />
           </div>
 
-          <aside className="order-1 flex flex-col gap-6 lg:order-2 lg:col-span-5">
-            <PenjelasanAira
-              key={hasil?.waktuPerhitunganUtc}
-              hasil={hasil}
-              masukan={masukan}
-            />
+          <aside className="order-1 flex min-w-0 flex-col gap-6 lg:order-2 lg:col-span-5">
             <HasilActions statusKey={statusKey} />
           </aside>
         </div>
 
-        {/* BARIS 3: fitur sekunder, lebar penuh di bawah.
-            Tidak lagi membuat kolom kanan jauh lebih panjang dari kiri. */}
+        {/* Estimasi panen air hujan memenuhi seluruh lebar halaman. */}
         <div className="mt-6 w-full *:w-full *:max-w-none!">
-          <EstimasiPanenHujan hasil={hasil} masukan={masukan} />
+          <EstimasiPanenHujan
+            hasil={hasil}
+            masukan={masukan}
+          />
         </div>
       </div>
     </main>
