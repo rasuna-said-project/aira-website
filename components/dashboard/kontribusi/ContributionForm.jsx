@@ -22,29 +22,10 @@ export default function ContributionForm({
   onSubmit,
   editData,
 }) {
-  const [form, setForm] = useState(initialForm);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    if (editData) {
-      setForm({
-        ...initialForm,
-        name: editData.name || "",
-        type: editData.type || "Sumur bor",
-        address: editData.address || "",
-        mapsUrl: editData.mapsUrl || "",
-        availability: editData.availability || "Tersedia",
-        accessHours: editData.accessHours || "",
-        manager: editData.manager || "",
-        managerContact: editData.managerContact || "",
-        informationSource: editData.informationSource || "",
-        note: editData.note || "",
-      });
-    } else {
-      setForm(initialForm);
-    }
-  }, [isOpen, editData]);
+  const [form, setForm] = useState(() => ({
+    ...initialForm,
+    ...editData,
+  }));
 
   useEffect(() => {
     if (!isOpen) return;
@@ -177,7 +158,7 @@ export default function ContributionForm({
               />
             </div>
 
-            {/* Google maps */}
+            {/* Google Maps */}
             <div>
               <label className={labelClass}>Tautan Google Maps</label>
               <input

@@ -132,13 +132,15 @@ export default function ContributionPage() {
         />
       </div>
 
-      {/* Modal form kontribusi */}
+      
+    {/* Modal form kontribusi */}
       <ContributionForm
-        isOpen={isFormOpen}
-        onClose={closeForm}
-        onSubmit={handleSubmit}
-        editData={editData}
-      />
+      key={editData?.id ?? "new"}
+      isOpen={isFormOpen}
+      onClose={closeForm}
+      onSubmit={handleSubmit}
+      editData={editData}
+  />
     </>
   );
 } 
