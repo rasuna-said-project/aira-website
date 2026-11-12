@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -22,6 +23,7 @@ import { hitungKalkulator } from "@/app/actions/kalkulator";
 import { cariCurahHujan } from "@/data/curahHujan";
 import { simpanHasilKalkulator } from "@/lib/hasilKalkulator";
 import { createClient } from "@/lib/supabase/client";
+import { formatLokasiWilayah } from "@/lib/formatWilayah";
 
 import {
   BASIC_PER_ORANG,
@@ -83,6 +85,11 @@ export default function KalkulatorForm() {
 
   const adaKapasitas = Number(value.kapasitas) > 0;
   const curahHujan = cariCurahHujan(value.lokasi);
+
+  // Format nama wilayah hanya untuk tampilan.
+  // value.lokasi tetap menggunakan nilai aslinya.
+  const lokasiTampilan = formatLokasiWilayah(value.lokasi);
+
   const luasAtap = Number(value.luasAtap) || 0;
 
   const kebutuhanDasar =
@@ -607,7 +614,7 @@ export default function KalkulatorForm() {
                 {value.lokasi && curahHujan != null ? (
                   <>
                     Curah hujan dihitung otomatis dari lokasi Anda (
-                    <strong>{value.lokasi}</strong>, {curahHujan}{" "}
+                    <strong>{lokasiTampilan}</strong>, {curahHujan}{" "}
                     mm/bulan, data simulasi).
                   </>
                 ) : (

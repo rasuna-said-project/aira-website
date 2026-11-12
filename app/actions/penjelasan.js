@@ -1,4 +1,3 @@
-
 "use server";
 
 import { headers } from "next/headers";
@@ -9,8 +8,8 @@ import {
 } from "@/services/aiService";
 
 // Server Action untuk kartu Penjelasan AIRA.
-// Hasil selalu dihitung ulang di server.
-// AI hanya menerima konteks hasil kalkulator yang sudah ditetapkan sistem.
+// Hasil kalkulator dihitung ulang di server.
+// AI hanya menjelaskan hasil yang sudah ditentukan kalkulator.
 export async function jelaskanHasilAI(masukan) {
   try {
     if (
@@ -47,12 +46,9 @@ export async function jelaskanHasilAI(masukan) {
       };
     }
 
-    // Tidak memanggil ambilRekomendasi().
-    // Penjelasan AI tidak membutuhkan daftar tindakan.
-    const respons = await dapatkanPenjelasanAI(
-      hasil,
-      masukan
-    );
+    // Penjelasan AI tidak memerlukan daftar rekomendasi.
+    // Rekomendasi ditangani secara terpisah oleh rekomendasiService.
+    const respons = await dapatkanPenjelasanAI(hasil, masukan);
 
     if (!respons?.ok) {
       return {
