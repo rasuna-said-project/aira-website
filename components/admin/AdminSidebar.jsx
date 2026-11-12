@@ -21,7 +21,7 @@ const menuItems = [
   },
   {
     label: "Kelola Titik Air",
-    href: "/admin/titik-air",
+    href: "/admin/kelola-titik-air",
     icon: Droplets,
   },
 ];
@@ -30,20 +30,31 @@ export default function AdminSidebar({ admin }) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-full shrink-0 space-y-3 md:w-[186px]"> 
+    <aside className="w-full min-w-0 space-y-3 min-[700px]:w-[124px]">
+
       {/* Profil Admin */}
-      <div className="flex items-center gap-2.5 rounded-[20px] bg-white px-3 py-3 shadow-[0_8px_28px_-10px_rgba(23,107,120,0.22)]">
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-aira-primary text-xs font-bold text-white">
+      <div className="
+        flex items-center gap-2
+        rounded-[16px] bg-white
+        px-2.5 py-2.5
+        shadow-soft
+      ">
+        <div className="
+          flex size-8 shrink-0 items-center
+          justify-center rounded-full
+          bg-aira-primary text-[10px]
+          font-bold text-white
+        ">
           {admin.initials}
         </div>
 
         <div className="min-w-0">
-          <p className="truncate text-xs font-semibold text-aira-text">
-            {admin.name}
+          <p className="truncate text-[9px] font-semibold text-aira-text">
+            Admin AIRA
           </p>
 
-          <p className="mt-0.5 text-[9px] leading-tight text-aira-text/55">
-            {admin.role}
+          <p className="text-[7px] leading-tight text-aira-text/50">
+            Peninjau & pengelola data
           </p>
         </div>
       </div>
@@ -51,7 +62,11 @@ export default function AdminSidebar({ admin }) {
       {/* Navigasi Admin */}
       <nav
         aria-label="Navigasi admin"
-        className="flex flex-col rounded-[20px] bg-white p-2 shadow-[0_8px_28px_-10px_rgba(23,107,120,0.22)]"
+        className="
+          flex flex-col gap-0.5
+          rounded-[16px] bg-white
+          p-1.5 shadow-soft
+        "
       >
         {menuItems.map((item) => {
           const Icon = item.icon;
@@ -68,9 +83,10 @@ export default function AdminSidebar({ admin }) {
               href={item.href}
               aria-current={isActive ? "page" : undefined}
               className={`
-                flex items-center gap-2 rounded-[14px]
-                px-2.5 py-3 text-[11px] font-semibold
-                transition-colors duration-200
+                flex items-center gap-1.5
+                rounded-[10px] px-2 py-2
+                text-[8px] font-semibold
+                leading-tight transition-colors
                 ${
                   isActive
                     ? "bg-aira-primary text-white"
@@ -78,8 +94,8 @@ export default function AdminSidebar({ admin }) {
                 }
               `}
             >
-              <Icon className="size-[14px] shrink-0" />
-              <span className="leading-tight">{item.label}</span>
+              <Icon className="size-3 shrink-0" />
+              <span>{item.label}</span>
             </Link>
           );
         })}
