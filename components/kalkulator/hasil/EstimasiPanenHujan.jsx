@@ -1,7 +1,9 @@
+
 "use client";
 
 import Link from "next/link";
 import { CloudRain } from "lucide-react";
+import { formatLokasiWilayah } from "@/lib/formatWilayah";
 
 const formatAngka = (angka) =>
   Number(angka).toLocaleString("id-ID", {
@@ -11,7 +13,11 @@ const formatAngka = (angka) =>
 export default function EstimasiPanenHujan({ hasil, masukan }) {
   const potensi = hasil?.potensiPanenAirHujanLiter;
   const curahHujan = hasil?.curahHujanMmPerBulan;
-  const wilayah = hasil?.wilayah || masukan?.lokasi || "";
+
+  const wilayah = formatLokasiWilayah(
+    hasil?.wilayah || masukan?.lokasi || ""
+  );
+
   const luasAtap = Number(masukan?.luasAtap) || 0;
 
   return (
@@ -64,7 +70,9 @@ export default function EstimasiPanenHujan({ hasil, masukan }) {
 
             {wilayah && (
               <p className="mt-2 text-sm text-aira-text/75">
-                Berdasarkan wilayah {wilayah}.
+                Curah hujan dihitung otomatis dari lokasi Anda (
+                <strong>{wilayah}</strong>,{" "}
+                {formatAngka(curahHujan)} mm/bulan, data simulasi).
               </p>
             )}
           </div>
