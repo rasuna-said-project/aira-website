@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Info } from "lucide-react";
 import { mintaPenjelasanAira } from "@/lib/penjelasanAira";
 
-export default function PenjelasanAira({ hasil, masukan }) {
+export default function PenjelasanAira({ hasil, masukan, pesanCadangan = "" }) {
   const [state, setState] = useState({
     hasil: null,
     masukan: null,
@@ -87,10 +88,10 @@ export default function PenjelasanAira({ hasil, masukan }) {
   }, [hasil, masukan, idPerhitungan]);
 
   return (
-    <div aria-live="polite">
+    <div aria-live="polite" className="space-y-3">
       {tahapTampilan === "memuat" && (
         <p
-          className="text-sm leading-relaxed text-aira-text/60"
+          className="text-[15px] leading-relaxed text-aira-text/60"
           role="status"
         >
           Menyiapkan penjelasan hasil perhitungan...
@@ -98,19 +99,29 @@ export default function PenjelasanAira({ hasil, masukan }) {
       )}
 
       {tahapTampilan === "siap" && (
-        <p className="text-sm leading-relaxed text-aira-text/85">
+        <p className="text-[15px] leading-relaxed text-aira-text/85">
           {teksTampilan}
         </p>
       )}
 
       {tahapTampilan === "gagal" && (
-        <p
-          className="text-sm leading-relaxed text-aira-text/70"
-          role="status"
-        >
-          Penjelasan belum dapat dimuat. Namun, hasil perhitungan dan
-          langkah yang disarankan tetap dapat digunakan.
-        </p>
+        <>
+          {pesanCadangan && <p>{pesanCadangan}</p>}
+
+          <p
+            className="flex items-start gap-2 text-sm leading-relaxed text-aira-text/70"
+            role="status"
+          >
+            <Info
+              className="mt-0.5 size-4 shrink-0 text-aira-primary"
+              aria-hidden="true"
+            />
+            <span>
+              Penjelasan belum dapat dimuat. Namun, hasil perhitungan dan
+              langkah yang disarankan tetap dapat digunakan.
+            </span>
+          </p>
+        </>
       )}
     </div>
   );
