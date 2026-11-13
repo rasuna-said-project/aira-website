@@ -3,8 +3,10 @@
 import { jawabPertanyaanAssistant } from "@/services/assistantService";
 
 const BATAS_PERTANYAAN = 2000;
+
 const MODE_VALID = [
   "rag",
+  "hybrid",
   "llm",
   "no_source",
   "out_of_scope",
@@ -66,13 +68,12 @@ export async function kirimPesanAssistant({
       };
     }
 
-    // Pertahankan empat mode agar frontend dapat
-    // menampilkan label sesuai kondisi sebenarnya.
+    // Pertahankan semua mode, termasuk hybrid.
     const mode = MODE_VALID.includes(hasil.mode)
       ? hasil.mode
       : "llm";
 
-    // Kirim hanya metadata sumber yang dibutuhkan frontend.
+    // Pertahankan metadata sumber untuk ditampilkan di frontend.
     const sources = Array.isArray(hasil.sources)
       ? hasil.sources.map((source) => ({
           title:
