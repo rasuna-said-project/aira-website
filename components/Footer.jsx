@@ -46,7 +46,7 @@ const footerAdmin = {
   links: [
     { label: "Ringkasan & Riwayat", href: "/admin" },
     { label: "Verifikasi Kontribusi", href: "/admin/verifikasi" },
-    { label: "Kelola Titik Air", href: "/admin/titik-air" },
+    { label: "Kelola Titik Air", href: "/admin/kelola-titik-air" },
   ],
 };
 
