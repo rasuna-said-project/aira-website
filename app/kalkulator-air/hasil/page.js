@@ -4,6 +4,6 @@ export const metadata = {
   title: "Hasil Perhitungan - AIRA",
 };
 
-export default function HasilPerhitungan() {
+export default function HasilPerhitunganPage() {
   return <HasilKalkulator />;
 }
