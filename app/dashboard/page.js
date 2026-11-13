@@ -1,65 +1,58 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { logout } from "@/app/actions/auth";
+import HeroDashboard from "@/components/dashboard/beranda/HeroDashboard";
+import MenuCepat from "@/components/dashboard/beranda/MenuCepat";
+import StatusAirCard from "@/components/dashboard/beranda/StatusAirCard";
+import StatusAirKosong from "@/components/dashboard/beranda/StatusAirKosong";
+import { ambilProfilDashboard } from "@/lib/dashboardProfile";
+import { hitungStatusDashboard } from "@/lib/statusDashboard";
+import { formatTanggalIso, salamWaktu, tanggalLengkap } from "@/lib/waktuDashboard";
+import { ambilDataDashboard } from "@/services/dashboardService";
 
+export const metadata = {
+  title: "Dashboard - AIRA",
+};
+
+// B01 - Dashboard User. Data sementara dari services/dashboardService.js (simulasi).
 export default async function DashboardPage() {
-  const supabase = await createClient();
+  const profile = await ambilProfilDashboard();
+  const { keluarga, catatan, kontribusi } = await ambilDataDashboard();
 
-  const { data: { user }, error } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    redirect("/masuk");
-  }
-
-  const { data: profile, error: profileError } = await supabase
-    .from("users")
-    .select("user_id, full_name, email, role, account_status")
-    .eq("user_id", user.id)
-    .single();
-
-  if (profileError || !profile) {
-    redirect("/masuk");
-  }
-
-  if (profile.account_status !== "active") {
-    redirect("/masuk");
-  }
-
-  // Jika admin tidak sengaja masuk ke /dashboard biasa, redirect ke /admin
-  if (profile.role === "admin") {
-    redirect("/admin");
-  }
+  const terbaru = catatan[0] ?? null;
+  const status = terbaru
+    ? hitungStatusDashboard({
+        liter: terbaru.liter,
+        anggota: keluarga.anggota,
+        anggotaMhm: keluarga.anggotaMhm,
+        kondisiSumberAir: keluarga.kondisiSumberAir,
+      })
+    : null;
+  const tanggal = terbaru ? formatTanggalIso(terbaru.tanggal) : null;
+  const kontribusiMenunggu = kontribusi.filter((k) => k.status === "Menunggu Verifikasi").length;
 
   return (
-    <main className="min-h-screen bg-[#F5F5EF] p-8">
-      <div className="mx-auto max-w-5xl">
-        <h1 className="text-3xl font-bold text-[#526B50]">
-          Dashboard User AIRA
-        </h1>
+    <div className="space-y-6">
+      <HeroDashboard
+        tanggal={tanggalLengkap()}
+        salam={salamWaktu()}
+        nama={profile.full_name || "Pengguna AIRA"}
+      />
 
-        <div className="mt-6 rounded-xl bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold">
-            Selamat datang, {profile.full_name}
-          </h2>
+      {terbaru && status ? (
+        <StatusAirCard
+          status={status}
+          catatan={terbaru}
+          keluarga={keluarga}
+          tanggalSingkat={tanggal.tanggalSingkat}
+          tanggalPenuh={tanggal.tanggalPenuh}
+        />
+      ) : (
+        <StatusAirKosong />
+      )}
 
-          <p className="mt-2 text-gray-600">
-            Email: {profile.email}
-          </p>
-
-          <p className="mt-1 text-gray-600">
-            Role: {profile.role}
-          </p>
-        </div>
-
-        <form action={logout} className="mt-6">
-          <button
-            type="submit"
-            className="rounded-lg bg-red-600 px-5 py-3 text-white hover:bg-red-700 transition-colors"
-          >
-            Logout
-          </button>
-        </form>
-      </div>
-    </main>
+      <MenuCepat
+        adaHasil={Boolean(terbaru)}
+        jumlahCatatan={catatan.length}
+        kontribusiMenunggu={kontribusiMenunggu}
+      />
+    </div>
   );
 }

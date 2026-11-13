@@ -17,6 +17,7 @@ export default function ConditionalFooter() {
   return (
     <Footer
       waveFill={pathname === "/" ? "#F6F1E9" : undefined}
+      admin={pathname.startsWith("/admin")}
     />
   );
 } 

@@ -5,6 +5,7 @@ const formatLiter = (angka) =>
     maximumFractionDigits: 2,
   })} L`;
 
+// Kotak putih "Ringkasan Kebutuhan Air" di dalam card status.
 export default function RingkasanKebutuhan({ hasil }) {
   const valid = hasil?.valid === true;
 
@@ -28,26 +29,30 @@ export default function RingkasanKebutuhan({ hasil }) {
   ];
 
   return (
-    <div className="rounded-2xl border border-aira-primary/10 bg-white/70 p-4 shadow-soft">
-      <h3 className="mb-3 font-heading text-xs font-bold uppercase tracking-wider text-aira-primary/70">
+    <section
+      className="mt-6 rounded-2xl border border-aira-primary/10 bg-white/70 p-4"
+      aria-labelledby="ringkasan-kebutuhan"
+    >
+      <h3
+        id="ringkasan-kebutuhan"
+        className="text-[13px] font-bold uppercase tracking-wider text-aira-primary/70"
+      >
         Ringkasan Kebutuhan Air
       </h3>
 
-      <div className="grid grid-cols-2 gap-y-3 divide-y divide-gray-200/60 sm:grid-cols-4 sm:divide-x sm:divide-y-0">
-        {ringkasan.map((item, idx) => (
-          <div
-            key={item.label}
-            className={`text-center ${idx > 0 ? "pt-2 sm:pt-0 sm:pl-2" : ""}`}
-          >
-            <dd className="font-heading text-lg font-bold text-aira-primary sm:text-xl">
+      <dl className="mt-3 grid grid-cols-2 gap-y-4 text-center sm:grid-cols-4 sm:gap-y-0 sm:divide-x sm:divide-aira-primary/10">
+        {ringkasan.map((item) => (
+          <div key={item.label} className="px-2">
+            <dd className="font-heading text-2xl font-semibold text-aira-primary">
               {item.value}
             </dd>
-            <dt className="mt-0.5 text-xs text-aira-text/75">
+
+            <dt className="mt-0.5 text-[13px] text-aira-text/75">
               {item.label}
             </dt>
           </div>
         ))}
-      </div>
-    </div>
+      </dl>
+    </section>
   );
 }

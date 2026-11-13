@@ -26,7 +26,7 @@ const footerGroups = [
       { label: "Dashboard", href: "/dashboard" },
       {
         label: "Kondisi Air Rumah Tangga",
-        href: "/dashboard/monitoring",
+        href: "/dashboard/kondisi-air",
       },
       {
         label: "Kontribusi Titik Air",
@@ -39,6 +39,16 @@ const footerGroups = [
     ],
   },
 ];
+
+// Footer untuk halaman admin: kolom kedua diganti menu admin (sesuai Figma Make).
+const footerAdmin = {
+  title: "Untuk admin",
+  links: [
+    { label: "Ringkasan & Riwayat", href: "/admin" },
+    { label: "Verifikasi Kontribusi", href: "/admin/verifikasi" },
+    { label: "Kelola Titik Air", href: "/admin/kelola-titik-air" },
+  ],
+};
 
 // Wave decoration
 function FooterWave({ fill }) {
@@ -84,7 +94,8 @@ function FooterBrand() {
 }
 
 // Main footer
-export default function Footer({ waveFill = "#F9FBFB" }) {
+export default function Footer({ waveFill = "#F9FBFB", admin = false }) {
+  const groups = admin ? [footerGroups[0], footerAdmin] : footerGroups;
   return (
     <>
       {/* Wave transition */}
@@ -109,7 +120,7 @@ export default function Footer({ waveFill = "#F9FBFB" }) {
           </div>
 
           {/* Navigation sections */}
-          {footerGroups.map((group) => (
+          {groups.map((group) => (
             <div
               key={group.title}
               className="min-w-0"

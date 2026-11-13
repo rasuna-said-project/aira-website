@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Mail } from "lucide-react";
+
 import FormField from "@/components/auth/FormField";
 import FormMessage from "@/components/auth/FormMessage";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ export default function ForgotPasswordForm({ onBack }) {
 
   async function handleSubmit(event) {
     event.preventDefault();
+
     setError("");
     setMessage("");
 
@@ -21,6 +23,7 @@ export default function ForgotPasswordForm({ onBack }) {
 
     startTransition(async () => {
       const res = await resetPassword(formData);
+
       if (res?.error) {
         setError(res.error);
       } else if (res?.success) {
@@ -31,7 +34,11 @@ export default function ForgotPasswordForm({ onBack }) {
 
   return (
     <>
-      <form noValidate onSubmit={handleSubmit} className="mt-7 space-y-5">
+      <form
+        noValidate
+        onSubmit={handleSubmit}
+        className="mt-7 space-y-5"
+      >
         <FormField
           icon={Mail}
           label="Email"
@@ -46,7 +53,11 @@ export default function ForgotPasswordForm({ onBack }) {
           }}
         />
 
-        {message && <FormMessage type="success">{message}</FormMessage>}
+        {message && (
+          <FormMessage type="success">
+            {message}
+          </FormMessage>
+        )}
 
         <Button
           type="submit"

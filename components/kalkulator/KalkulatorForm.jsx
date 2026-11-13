@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
@@ -22,6 +22,8 @@ import { Input } from "@/components/ui/input";
 import { hitungKalkulator } from "@/app/actions/kalkulator";
 import { cariCurahHujan } from "@/data/curahHujan";
 import { simpanHasilKalkulator } from "@/lib/hasilKalkulator";
+import { createClient } from "@/lib/supabase/client";
+import { formatLokasiWilayah } from "@/lib/formatWilayah";
 
 import {
   BASIC_PER_ORANG,
@@ -35,9 +37,6 @@ import {
   validasiInput,
 } from "@/services/calculatorFormService";
 
-// Key penyimpanan sementara data kalkulator.
-const DRAFT_KEY = "aira_draft_kalkulator";
-
 const kolom =
   "h-[52px] rounded-2xl border-aira-primary/20 bg-white px-4 text-base focus-visible:border-aira-primary focus-visible:ring-aira-secondary/30 md:text-base";
 
@@ -45,74 +44,22 @@ const pesanError = "mt-1 block text-sm text-aira-coral-dark";
 
 export default function KalkulatorForm() {
   const router = useRouter();
+  const supabase = createClient();
 
-  // State utama formulir.
-  const [value, setValue] = useState(INPUT_AWAL);
-  const [isRestored, setIsRestored] = useState(false);
+  // ==========================================
+  // STATE
+  // ==========================================
+
+  const [value, setValue] = useState({ ...INPUT_AWAL });
+  const [region, setRegion] = useState(null);
 
   const [touched, setTouched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [gagal, setGagal] = useState("");
 
-  // =====================================================
-  // 1. MEMULIHKAN DATA TERAKHIR PENGGUNA
-  // =====================================================
-
-  useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem(DRAFT_KEY);
-
-      if (raw) {
-        const draft = JSON.parse(raw);
-
-        if (
-          draft &&
-          typeof draft === "object" &&
-          !Array.isArray(draft)
-        ) {
-          // Memulihkan draft dari sessionStorage ke state awal.
-          // eslint-disable-next-line react-hooks/set-state-in-effect
-          setValue({
-            ...INPUT_AWAL,
-            ...draft,
-          });
-        }
-      }
-    } catch (error) {
-      console.error(
-        "Gagal memulihkan draft kalkulator:",
-        error
-      );
-    } finally {
-      // Menandakan proses pemulihan selesai.
-      setIsRestored(true);
-    }
-  }, []);
-
-  // =====================================================
-  // 2. MENYIMPAN DATA INPUT SECARA OTOMATIS
-  // =====================================================
-
-  useEffect(() => {
-    // Jangan menyimpan INPUT_AWAL sebelum data lama dipulihkan.
-    if (!isRestored) return;
-
-    try {
-      sessionStorage.setItem(
-        DRAFT_KEY,
-        JSON.stringify(value)
-      );
-    } catch (error) {
-      console.error(
-        "Gagal menyimpan draft kalkulator:",
-        error
-      );
-    }
-  }, [value, isRestored]);
-
-  // =====================================================
-  // 3. MENGATUR PERUBAHAN INPUT
-  // =====================================================
+  // ==========================================
+  // PERUBAHAN INPUT
+  // ==========================================
 
   const set = (key, val) => {
     setValue((current) => ({
@@ -137,8 +84,11 @@ export default function KalkulatorForm() {
   );
 
   const adaKapasitas = Number(value.kapasitas) > 0;
-
   const curahHujan = cariCurahHujan(value.lokasi);
+
+  // Format nama wilayah hanya untuk tampilan.
+  // value.lokasi tetap menggunakan nilai aslinya.
+  const lokasiTampilan = formatLokasiWilayah(value.lokasi);
 
   const luasAtap = Number(value.luasAtap) || 0;
 
@@ -149,7 +99,6 @@ export default function KalkulatorForm() {
     ? value.anggotaMhm * MHM_PER_ORANG
     : 0;
 
-  // Mengatur jumlah anggota keluarga.
   const ubahAnggota = (n) =>
     setValue((current) => ({
       ...current,
@@ -158,13 +107,9 @@ export default function KalkulatorForm() {
       anggotaMhm:
         n === 0 || !current.mhm
           ? 0
-          : Math.max(
-              1,
-              Math.min(current.anggotaMhm, n)
-            ),
+          : Math.max(1, Math.min(current.anggotaMhm, n)),
     }));
 
-  // Mengaktifkan atau menonaktifkan kebutuhan MHM.
   const ubahMhm = () =>
     setValue((current) => ({
       ...current,
@@ -173,60 +118,159 @@ export default function KalkulatorForm() {
         ? 0
         : Math.max(
             1,
-            Math.min(
-              current.anggotaMhm || 1,
-              current.anggota
-            )
+            Math.min(current.anggotaMhm || 1, current.anggota)
           ),
     }));
 
-  // =====================================================
-  // 4. PROSES PERHITUNGAN DAN PENYIMPANAN HASIL
-  // =====================================================
+  // ==========================================
+  // MENYIMPAN DATA KE SUPABASE
+  // LOGIN DAN TAMU MENGGUNAKAN RPC
+  // ==========================================
+
+  async function simpanKeSupabase(input, hasil) {
+    const statusDatabase = {
+      "Aman / Relatif Mencukupi": "safe",
+      Waspada: "limited",
+      "Mode Krisis": "critical",
+      "Belum Dapat Ditentukan": "undetermined",
+    };
+
+    // Data rumah tangga
+    const householdPayload = {
+      household_name: "Rumah Tangga Pengguna",
+
+      province_id: region?.province_id ?? null,
+      city_regency_id: region?.city_regency_id ?? null,
+      district_id: region?.district_id ?? null,
+
+      member_count: Number(input.anggota),
+      water_source_type: input.sumberAir,
+
+      source_condition:
+        input.kondisi === "Tidak Berfungsi"
+          ? "Tidak berfungsi"
+          : input.kondisi,
+
+      tank_capacity_liters: Number(input.kapasitas),
+      water_volume_percentage: Number(input.persen),
+
+      has_mhm: Boolean(input.mhm),
+
+      mhm_member_count: input.mhm
+        ? Number(input.anggotaMhm)
+        : 0,
+
+      roof_area_m2:
+        input.luasAtap === ""
+          ? null
+          : Number(input.luasAtap),
+    };
+
+    // Data hasil asesmen
+    const assessmentPayload = {
+      available_water_liters: hasil.cadanganAirLiter,
+      daily_need_liters: hasil.kebutuhanHarianLiter,
+
+      estimated_duration_days:
+        hasil.durasiHari ?? null,
+
+      water_condition:
+        statusDatabase[hasil.status] ?? "undetermined",
+
+      crisis_mode:
+        hasil.status === "Mode Krisis",
+
+      assessment_notes:
+        hasil.alasanStatus ?? null,
+    };
+
+    // Panggil fungsi database.
+    // Tidak menggunakan getUser() atau getSession().
+    const { data, error } = await supabase.rpc(
+      "save_water_assessment",
+      {
+        p_household: householdPayload,
+        p_assessment: assessmentPayload,
+      }
+    );
+
+    if (error) {
+      console.error("[AIRA] Gagal menyimpan:", error);
+      throw new Error(
+        error.message || "Gagal menyimpan data ke Supabase."
+      );
+    }
+
+    if (!data || data.success !== true) {
+      throw new Error(
+        "Penyimpanan rumah tangga dan asesmen tidak berhasil."
+      );
+    }
+
+    console.log("[AIRA] Penyimpanan berhasil:", data);
+
+    return data;
+  }
+
+  // ==========================================
+  // PROSES HITUNG
+  // ==========================================
 
   async function handleSubmit(event) {
     event.preventDefault();
 
+    if (loading) return;
+
     setTouched(true);
     setGagal("");
+
+    const cek = validasiInput(value);
+
+    if (!cek.valid) {
+      setGagal(cek.daftar.join(" "));
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Simpan seluruh input terakhir sebelum berpindah halaman.
-      try {
-        sessionStorage.setItem(
-          DRAFT_KEY,
-          JSON.stringify(value)
-        );
-      } catch (storageError) {
-        console.error(
-          "Gagal menyimpan draft sebelum perhitungan:",
-          storageError
-        );
-      }
-
-      // Jalankan perhitungan melalui server action.
+      // 1. Jalankan perhitungan.
       const hasil = await hitungKalkulator(value);
 
-      // Simpan hasil perhitungan untuk halaman hasil.
+      if (!hasil.valid) {
+        setGagal(
+          hasil.errors?.join(" ") ||
+            "Data kalkulator belum valid."
+        );
+        return;
+      }
+
+      // 2. Simpan rumah tangga dan hasil asesmen.
+      await simpanKeSupabase(value, hasil);
+
+      // 3. Simpan hasil untuk halaman hasil.
       simpanHasilKalkulator(value, hasil);
 
-      // Pindah ke halaman hasil tanpa menghapus draft.
+      // 4. Pindah ke halaman hasil.
       router.push("/kalkulator-air/hasil");
     } catch (error) {
-      console.error("Perhitungan gagal:", error);
-
-      setGagal(
-        "Perhitungan belum berhasil dijalankan. Periksa koneksi Anda lalu coba lagi."
+      console.error(
+        "[AIRA] Gagal menghitung atau menyimpan:",
+        error
       );
 
+      setGagal(
+        error?.message ||
+          "Perhitungan atau penyimpanan data gagal. Silakan coba kembali."
+      );
+    } finally {
       setLoading(false);
     }
   }
 
-  // =====================================================
-  // 5. TAMPILAN FORM KALKULATOR
-  // =====================================================
+  // ==========================================
+  // TAMPILAN FORM
+  // ==========================================
 
   return (
     <div className="relative min-h-[calc(100vh-72px)] overflow-hidden bg-aira-bg">
@@ -247,7 +291,8 @@ export default function KalkulatorForm() {
           </h1>
 
           <p className="mx-auto mt-3 max-w-lg text-aira-text/80">
-            Isi data rumah tangga Anda. Hasilnya berupa estimasi berapa hari cadangan air akan bertahan, ditambah
+            Isi data rumah tangga Anda. Hasilnya berupa estimasi
+            berapa hari cadangan air akan bertahan, ditambah
             potensi panen air hujan.
           </p>
         </div>
@@ -257,15 +302,18 @@ export default function KalkulatorForm() {
           onSubmit={handleSubmit}
           className="space-y-8 rounded-[28px] border border-aira-primary/5 bg-white p-5 shadow-soft sm:p-9"
         >
-          {/* LOKASI / WILAYAH TEMPAT TINGGAL */}
+          {/* LOKASI */}
+
           <div>
             <RegionSelect
               value={value.lokasi}
               onChange={(v) => set("lokasi", v)}
+              onRegionChange={setRegion}
             />
           </div>
 
-          {/* JUMLAH ANGGOTA KELUARGA */}
+          {/* ANGGOTA KELUARGA */}
+
           <div>
             <FieldLabel icon={Users} badge="Wajib">
               Jumlah Anggota Keluarga
@@ -288,6 +336,7 @@ export default function KalkulatorForm() {
           </div>
 
           {/* SUMBER DAN KONDISI AIR */}
+
           <fieldset className="space-y-4">
             <legend className="sr-only">
               Sumber dan kondisi air utama
@@ -336,10 +385,7 @@ export default function KalkulatorForm() {
                           : "border-aira-primary/25 bg-white text-aira-text hover:bg-aira-primary/10"
                       }`}
                     >
-                      {aktif && (
-                        <Check className="size-4" />
-                      )}
-
+                      {aktif && <Check className="size-4" />}
                       {k}
                     </button>
                   );
@@ -349,6 +395,7 @@ export default function KalkulatorForm() {
           </fieldset>
 
           {/* KAPASITAS DAN VOLUME AIR */}
+
           <div className="space-y-6">
             <label className="block">
               <FieldLabel icon={Container} badge="Wajib">
@@ -389,11 +436,7 @@ export default function KalkulatorForm() {
             <div>
               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                 <span className="flex items-center gap-2 text-[15px] font-semibold">
-                  <Droplet
-                    className="size-4 text-aira-secondary"
-                    aria-hidden="true"
-                  />
-
+                  <Droplet className="size-4 text-aira-secondary" />
                   Volume Air Saat Ini
                 </span>
 
@@ -432,7 +475,8 @@ export default function KalkulatorForm() {
             </div>
           </div>
 
-          {/* KEBUTUHAN KEBERSIHAN MENSTRUASI */}
+          {/* KEBUTUHAN MHM */}
+
           <div className="rounded-2xl bg-aira-sand p-5">
             <div className="flex items-start gap-4">
               <div className="flex-1">
@@ -458,9 +502,7 @@ export default function KalkulatorForm() {
                 disabled={value.anggota === 0}
                 onClick={ubahMhm}
                 className={`relative h-8 w-14 shrink-0 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-                  value.mhm
-                    ? "bg-aira-primary"
-                    : "bg-aira-text/25"
+                  value.mhm ? "bg-aira-primary" : "bg-aira-text/25"
                 }`}
               >
                 <span
@@ -482,9 +524,7 @@ export default function KalkulatorForm() {
                   min={1}
                   max={value.anggota}
                   label="Jumlah anggota yang sedang menstruasi"
-                  onChange={(n) =>
-                    set("anggotaMhm", n)
-                  }
+                  onChange={(n) => set("anggotaMhm", n)}
                 />
               </div>
             )}
@@ -516,7 +556,8 @@ export default function KalkulatorForm() {
             </div>
           </div>
 
-          {/* POTENSI PANEN AIR HUJAN */}
+          {/* PANEN AIR HUJAN */}
+
           <section
             className="rounded-3xl border-2 border-aira-sage bg-aira-sage/15 p-6 sm:p-7"
             aria-labelledby="rain-h"
@@ -567,35 +608,28 @@ export default function KalkulatorForm() {
             </label>
 
             <p className="mt-3 flex gap-2 text-sm text-aira-text/75">
-              <CloudRain
-                className="mt-0.5 size-4 shrink-0 text-aira-primary"
-                aria-hidden="true"
-              />
+              <CloudRain className="mt-0.5 size-4 shrink-0 text-aira-primary" />
 
               <span>
                 {value.lokasi && curahHujan != null ? (
                   <>
                     Curah hujan dihitung otomatis dari lokasi Anda (
-                    <strong>{value.lokasi}</strong>, {curahHujan}{" "}
+                    <strong>{lokasiTampilan}</strong>, {curahHujan}{" "}
                     mm/bulan, data simulasi).
                   </>
                 ) : (
-                  <>
-                    Pilih lokasi untuk menghitung estimasi panen air hujan.
-                  </>
+                  <>Pilih lokasi untuk menghitung estimasi panen air hujan.</>
                 )}
 
                 {luasAtap > 0 && curahHujan != null && (
-                  <>
-                    {" "}
-                    Estimasi panen hujan tampil di halaman hasil.
-                  </>
+                  <> Estimasi panen hujan tampil di halaman hasil.</>
                 )}
               </span>
             </p>
           </section>
 
-          {/* PESAN ERROR */}
+          {/* ERROR */}
+
           {gagal && (
             <p
               role="alert"
@@ -605,7 +639,8 @@ export default function KalkulatorForm() {
             </p>
           )}
 
-          {/* TOMBOL HITUNG */}
+          {/* SUBMIT */}
+
           <Button
             type="submit"
             disabled={loading}

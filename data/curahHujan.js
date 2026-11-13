@@ -1,7 +1,8 @@
+
 // Curah hujan rata-rata per wilayah (mm/bulan).
- // DATA SIMULASI untuk prototipe, bukan data resmi.
- // Nama wilayah menggunakan nama kabupaten/kota sebagai acuan.
- // lat/lng merupakan perkiraan titik pusat kabupaten/kota.
+// DATA SIMULASI untuk prototipe, bukan data resmi.
+// Nama wilayah menggunakan nama kabupaten/kota sebagai acuan.
+// lat/lng merupakan perkiraan titik pusat kabupaten/kota.
 
 export const WILAYAH_CURAH_HUJAN = [
   { nama: "Gunungkidul, DI Yogyakarta", curahHujanMm: 95, lat: -7.96, lng: 110.6 },
@@ -17,18 +18,20 @@ export const WILAYAH_CURAH_HUJAN = [
   { nama: "Indramayu, Jawa Barat", curahHujanMm: 110, lat: -6.33, lng: 108.32 },
 ];
 
-// Menyamakan penulisan nama kabupaten/kota dari API.
+// Menyamakan penulisan nama kabupaten/kota dari Supabase
+// dengan nama acuan pada data curah hujan simulasi.
 function normalisasiNamaWilayah(nama) {
   return nama
     .trim()
     .toLowerCase()
     .replace(/^(kabupaten administrasi|kabupaten|kota administrasi|kota)\s+/i, "")
-    .replace(/\s+/g, " ");
+    .replace(/\s+/g, "");
 }
 
 // Mengembalikan curah hujan (mm/bulan).
-// Mendukung format lama dan format lokasi baru:
-// Kecamatan, Kabupaten/Kota, Provinsi.
+// Mendukung format:
+// 1. Kabupaten, Provinsi
+// 2. Kecamatan, Kabupaten/Kota, Provinsi
 export function cariCurahHujan(namaWilayah) {
   if (!namaWilayah || typeof namaWilayah !== "string") {
     return null;
@@ -41,10 +44,8 @@ export function cariCurahHujan(namaWilayah) {
   let namaKabupaten;
 
   if (bagian.length === 3) {
-    // Format baru dari RegionSelect.
     namaKabupaten = bagian[1];
   } else if (bagian.length === 2) {
-    // Format lama tetap didukung.
     namaKabupaten = bagian[0];
   } else {
     return null;
