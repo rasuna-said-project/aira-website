@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 import {
   X,
   MapPin,
@@ -9,17 +13,19 @@ import {
   AlertCircle,
   XCircle,
   ClipboardList,
+  ExternalLink,
 } from "lucide-react";
 
 import {
   VerificationBadge,
   AvailabilityBadge,
-} from "./VerificationBadge"; 
+} from "./VerificationBadge";
 
 export default function VerificationDetail({
   item,
   onClose,
   onUpdateStatus,
+  saving = false,
 }) {
   const [notes, setNotes] = useState(item?.notes || "");
 
@@ -29,6 +35,8 @@ export default function VerificationDetail({
     item.verificationStatus === "Menunggu Verifikasi";
 
   function handleDecision(status) {
+    if (saving) return;
+
     onUpdateStatus(item.id, status, notes);
   }
 
@@ -36,7 +44,10 @@ export default function VerificationDetail({
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) {
+        if (
+          event.target === event.currentTarget &&
+          !saving
+        ) {
           onClose();
         }
       }}
@@ -65,8 +76,9 @@ export default function VerificationDetail({
           <button
             type="button"
             onClick={onClose}
+            disabled={saving}
             aria-label="Tutup detail"
-            className="rounded-full p-2 text-aira-text/50 transition hover:bg-aira-bg hover:text-aira-primary"
+            className="rounded-full p-2 text-aira-text/50 transition hover:bg-aira-bg hover:text-aira-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
             <X size={19} />
           </button>
@@ -98,7 +110,7 @@ export default function VerificationDetail({
           <div className="grid gap-4 rounded-xl bg-aira-bg p-4 sm:grid-cols-2">
             <Info
               icon={UserRound}
-              label="Pengirim"
+              label="ID Pengirim"
               value={item.contributor}
             />
 
@@ -121,16 +133,49 @@ export default function VerificationDetail({
             />
           </div>
 
+          {/* Jenis kontribusi */}
+          <div>
+            <Info
+              label="Jenis kontribusi"
+              value={
+                item.contributionType === "new_point"
+                  ? "Penambahan titik air baru"
+                  : item.contributionType === "update_point"
+                    ? "Usulan pembaruan titik air"
+                    : item.contributionType
+              }
+            />
+
+            {item.waterPointId && (
+              <div className="mt-2">
+                <Info
+                  label="ID titik air terkait"
+                  value={item.waterPointId}
+                />
+              </div>
+            )}
+          </div>
+
           {/* Lokasi */}
           <div>
             <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-aira-text">
-              <MapPin size={16} className="text-aira-primary" />
+              <MapPin
+                size={16}
+                className="text-aira-primary"
+              />
               Informasi Lokasi
             </h4>
 
             <div className="space-y-2 rounded-xl border border-aira-primary/10 p-4">
-              <Info label="Alamat" value={item.address} />
-              <Info label="Koordinat" value={item.coordinates} />
+              <Info
+                label="Alamat"
+                value={item.address}
+              />
+
+              <Info
+                label="Koordinat"
+                value={item.coordinates}
+              />
             </div>
           </div>
 
@@ -145,13 +190,35 @@ export default function VerificationDetail({
             </p>
           </div>
 
+          {/* Bukti pendukung */}
+          {item.evidenceUrl && (
+            <div>
+              <h4 className="mb-2 text-sm font-semibold text-aira-text">
+                Bukti Pendukung
+              </h4>
+
+              <a
+                href={item.evidenceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-xs font-semibold text-aira-primary underline"
+              >
+                Lihat bukti kontribusi
+                <ExternalLink size={13} />
+              </a>
+            </div>
+          )}
+
           {/* Catatan pemeriksaan */}
           <div>
             <label
               htmlFor="verification-notes"
               className="mb-2 flex items-center gap-2 text-sm font-semibold text-aira-text"
             >
-              <ClipboardList size={16} className="text-aira-primary" />
+              <ClipboardList
+                size={16}
+                className="text-aira-primary"
+              />
               Catatan Admin
             </label>
 
@@ -159,14 +226,18 @@ export default function VerificationDetail({
               <textarea
                 id="verification-notes"
                 value={notes}
-                onChange={(event) => setNotes(event.target.value)}
+                onChange={(event) =>
+                  setNotes(event.target.value)
+                }
                 placeholder="Tuliskan catatan atau alasan keputusan..."
                 rows={3}
-                className="w-full resize-none rounded-xl border border-aira-primary/15 bg-white p-3 text-xs text-aira-text outline-none transition focus:border-aira-secondary focus:ring-2 focus:ring-aira-secondary/20"
+                disabled={saving}
+                className="w-full resize-none rounded-xl border border-aira-primary/15 bg-white p-3 text-xs text-aira-text outline-none transition focus:border-aira-secondary focus:ring-2 focus:ring-aira-secondary/20 disabled:bg-slate-50"
               />
             ) : (
               <p className="rounded-xl bg-aira-bg p-4 text-xs leading-relaxed text-aira-text/70">
-                {item.notes || "Tidak ada catatan pemeriksaan."}
+                {item.notes ||
+                  "Tidak ada catatan pemeriksaan."}
               </p>
             )}
           </div>
@@ -180,17 +251,25 @@ export default function VerificationDetail({
 
               <button
                 type="button"
-                onClick={() => handleDecision("Terverifikasi")}
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-aira-primary px-4 py-3 text-xs font-semibold text-white transition hover:bg-aira-primary-dark"
+                onClick={() =>
+                  handleDecision("Terverifikasi")
+                }
+                disabled={saving}
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-aira-primary px-4 py-3 text-xs font-semibold text-white transition hover:bg-aira-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <CheckCircle2 size={15} />
-                Verifikasi Kontribusi
+                {saving
+                  ? "Menyimpan..."
+                  : "Verifikasi Kontribusi"}
               </button>
 
               <button
                 type="button"
-                onClick={() => handleDecision("Perlu Perbaikan")}
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-amber-100 px-4 py-3 text-xs font-semibold text-amber-800 transition hover:bg-amber-200"
+                onClick={() =>
+                  handleDecision("Perlu Perbaikan")
+                }
+                disabled={saving}
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-amber-100 px-4 py-3 text-xs font-semibold text-amber-800 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <AlertCircle size={15} />
                 Minta Perbaikan
@@ -198,8 +277,11 @@ export default function VerificationDetail({
 
               <button
                 type="button"
-                onClick={() => handleDecision("Ditolak")}
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-[#FCE3DC] px-4 py-3 text-xs font-semibold text-[#A94D37] transition hover:bg-[#F8D2C8]"
+                onClick={() =>
+                  handleDecision("Ditolak")
+                }
+                disabled={saving}
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-[#FCE3DC] px-4 py-3 text-xs font-semibold text-[#A94D37] transition hover:bg-[#F8D2C8] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <XCircle size={15} />
                 Tolak Kontribusi
@@ -229,4 +311,4 @@ function Info({ icon: Icon, label, value }) {
       </p>
     </div>
   );
-} 
+}

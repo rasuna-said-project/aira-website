@@ -1,20 +1,30 @@
 import DetailTitikAir from "@/components/navigasi/DetailTitikAir";
 import TitikAirTidakDitemukan from "@/components/navigasi/TitikAirTidakDitemukan";
-import { TITIK_AIR_SIMULASI } from "@/data/titikAirSimulasi";
+import { getDetailTitikAirAction } from "@/app/actions/navigasi-air";
 
-// Di Next.js 16, params berupa Promise.
-const cariTitik = async (params) => {
+async function cariTitik(params) {
   const { id } = await params;
-  return TITIK_AIR_SIMULASI.find((t) => t.id === id);
-};
+  const result = await getDetailTitikAirAction(id);
+
+  return result.success ? result.data : null;
+}
 
 export async function generateMetadata({ params }) {
   const titik = await cariTitik(params);
-  return { title: titik ? `${titik.name} - AIRA` : "Titik Air Tidak Ditemukan - AIRA" };
+
+  return {
+    title: titik
+      ? `${titik.name} - AIRA`
+      : "Titik Air Tidak Ditemukan - AIRA",
+  };
 }
 
 export default async function DetailTitikAirPage({ params }) {
   const titik = await cariTitik(params);
-  if (!titik) return <TitikAirTidakDitemukan />;
+
+  if (!titik) {
+    return <TitikAirTidakDitemukan />;
+  }
+
   return <DetailTitikAir titik={titik} />;
 }
