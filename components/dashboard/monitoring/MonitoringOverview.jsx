@@ -1,27 +1,32 @@
 import { Droplets, ClipboardList, CalendarDays } from "lucide-react";
 
-const overviewItems = [
-  {
-    label: "Total Pembaruan",
-    value: "12 kali",
-    description: "Data pemantauan tercatat",
-    icon: ClipboardList,
-  },
-  {
-    label: "Kondisi Terakhir",
-    value: "Aman",
-    description: "Berdasarkan pembaruan terakhir",
-    icon: Droplets,
-  },
-  {
-    label: "Pembaruan Terakhir",
-    value: "9 Nov 2026",
-    description: "Tanggal pemantauan terakhir",
-    icon: CalendarDays,
-  },
-];
+// Ringkasan pemantauan. Nilai berasal dari data pengguna (database).
+export default function MonitoringOverview({
+  total = 0,
+  kondisi = "-",
+  tanggalTerakhir = "-",
+}) {
+  const overviewItems = [
+    {
+      label: "Total Pembaruan",
+      value: `${total} kali`,
+      description: "Data pemantauan tercatat",
+      icon: ClipboardList,
+    },
+    {
+      label: "Kondisi Terakhir",
+      value: kondisi,
+      description: "Berdasarkan pembaruan terakhir",
+      icon: Droplets,
+    },
+    {
+      label: "Pembaruan Terakhir",
+      value: tanggalTerakhir,
+      description: "Tanggal pemantauan terakhir",
+      icon: CalendarDays,
+    },
+  ];
 
-export default function MonitoringOverview() {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {overviewItems.map((item) => {
@@ -53,4 +58,4 @@ export default function MonitoringOverview() {
       })}
     </div>
   );
-} 
+}

@@ -1,7 +1,7 @@
-import { waterHistory } from "@/data/dashboardMockData";
 import { Clock3 } from "lucide-react";
 
-export default function WaterHistoryList() {
+// Riwayat pemantauan. `items` berasal dari data pengguna (database), terbaru lebih dulu.
+export default function WaterHistoryList({ items = [], total = items.length }) {
   return (
     <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
       <div className="mb-5">
@@ -14,7 +14,7 @@ export default function WaterHistoryList() {
       </div>
 
       <div className="space-y-4">
-        {waterHistory.map((item) => (
+        {items.map((item) => (
           <div
             key={item.id}
             className="border-b border-gray-100 pb-4 last:border-0 last:pb-0"
@@ -52,6 +52,12 @@ export default function WaterHistoryList() {
           </div>
         ))}
       </div>
+
+      {total > items.length && (
+        <p className="mt-4 text-xs text-gray-400">
+          Menampilkan {items.length} dari {total} pembaruan terbaru.
+        </p>
+      )}
     </section>
   );
-} 
+}
