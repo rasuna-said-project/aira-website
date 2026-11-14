@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
@@ -21,7 +20,11 @@ import { Input } from "@/components/ui/input";
 
 import { hitungKalkulator } from "@/app/actions/kalkulator";
 import { cariCurahHujan } from "@/data/curahHujan";
-import { simpanHasilKalkulator } from "@/lib/hasilKalkulator";
+import {
+  bacaDraftKalkulator,
+  hapusDraftKalkulator,
+  simpanHasilKalkulator,
+} from "@/lib/hasilKalkulator";
 import { createClient } from "@/lib/supabase/client";
 import { formatLokasiWilayah } from "@/lib/formatWilayah";
 
@@ -42,7 +45,9 @@ const kolom =
 
 const pesanError = "mt-1 block text-sm text-aira-coral-dark";
 
-export default function KalkulatorForm() {
+// `awal` = data terakhir pengguna yang login (dari app/kalkulator-air/page.js).
+// Tamu atau pengguna baru: null, formulir mulai dari nilai awal biasa.
+export default function KalkulatorForm({ awal = null }) {
   const router = useRouter();
   const supabase = createClient();
 
@@ -50,12 +55,24 @@ export default function KalkulatorForm() {
   // STATE
   // ==========================================
 
-  const [value, setValue] = useState({ ...INPUT_AWAL });
+  const [value, setValue] = useState(() => ({
+    ...INPUT_AWAL,
+    ...(awal ?? {}),
+  }));
   const [region, setRegion] = useState(null);
 
   const [touched, setTouched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [gagal, setGagal] = useState("");
+
+  // "Hitung ulang" dari riwayat: draft di sessionStorage didahulukan dari data terakhir.
+  useEffect(() => {
+    const draft = bacaDraftKalkulator();
+    if (!draft) return;
+
+    setValue({ ...INPUT_AWAL, ...draft });
+    hapusDraftKalkulator();
+  }, []);
 
   // ==========================================
   // PERUBAHAN INPUT
