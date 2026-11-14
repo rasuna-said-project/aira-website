@@ -4,26 +4,21 @@ import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 
 import { Field, Toggle, inputCls } from "@/components/dashboard/DashboardFormUi";
+import { simpanProfilKeluarga } from "@/app/actions/dashboard";
+import { SUMBER_AIR_PROFIL } from "@/lib/sumberAir";
 
-const SUMBER_AIR_UTAMA = [
-  "PDAM / Air perpipaan",
-  "Sumur gali / bor",
-  "Mata air",
-  "Air hujan",
-  "Tangki / air bersih truk",
-];
-
-// Formulir Profil keluarga. `awal` = nilai awal dari data keluarga.
-// CATATAN: simpan masih lokal (hanya validasi dan pesan sukses). Hubungkan ke endpoint profil keluarga
-// Tria pada bagian "TODO simpan" di bawah; tampilan tidak perlu diubah.
+// Formulir Profil keluarga. `awal` = nilai awal dari data keluarga (database).
 export default function ProfilKeluargaForm({ awal }) {
   const [mhm, setMhm] = useState(awal.anggotaMhm > 0);
   const [perempuan, setPerempuan] = useState(String(awal.anggotaMhm));
   const [tersimpan, setTersimpan] = useState(false);
   const [galat, setGalat] = useState("");
+  const [menyimpan, setMenyimpan] = useState(false);
 
-  function simpan(e) {
+  async function simpan(e) {
     e.preventDefault();
+    if (menyimpan) return;
+
     const form = new FormData(e.currentTarget);
     const anggota = Number(form.get("members"));
     const usiaSubur = mhm ? Number(form.get("women")) : 0;
@@ -44,8 +39,27 @@ export default function ProfilKeluargaForm({ awal }) {
       return;
     }
 
-    // TODO simpan: panggil Server Action / endpoint profil keluarga (Tria) dengan nilai dari `form`.
     setGalat("");
+    setMenyimpan(true);
+
+    const hasil = await simpanProfilKeluarga({
+      namaRumahTangga: String(form.get("household") || "").trim(),
+      wilayahDesa: String(form.get("area") || "").trim(),
+      anggota,
+      anggotaMhm: usiaSubur,
+      mhm,
+      sumberAir: String(form.get("source") || ""),
+      kapasitas,
+    });
+
+    setMenyimpan(false);
+
+    if (!hasil?.ok) {
+      setGalat(hasil?.error || "Profil keluarga belum dapat disimpan.");
+      setTersimpan(false);
+      return;
+    }
+
     setTersimpan(true);
   }
 
@@ -68,7 +82,7 @@ export default function ProfilKeluargaForm({ awal }) {
           <input name="area" required defaultValue={awal.wilayahDesa} className={inputCls} />
         </Field>
         <Field label="Jumlah anggota keluarga" hint="Isi jumlah orang yang tinggal dalam rumah tangga.">
-          <input name="members" type="number" min={1} required defaultValue={awal.anggota} className={inputCls} />
+          <input name="members" type="number" min={1} required defaultValue={awal.anggota ?? ""} className={inputCls} />
         </Field>
         <Field
           label="Perempuan usia subur"
@@ -86,7 +100,7 @@ export default function ProfilKeluargaForm({ awal }) {
         </Field>
         <Field label="Sumber air utama">
           <select name="source" defaultValue={awal.sumberAirUtama} className={inputCls}>
-            {SUMBER_AIR_UTAMA.map((s) => (
+            {SUMBER_AIR_PROFIL.map((s) => (
               <option key={s}>{s}</option>
             ))}
           </select>
@@ -113,9 +127,10 @@ export default function ProfilKeluargaForm({ awal }) {
       <div className="flex flex-wrap items-center gap-4">
         <button
           type="submit"
-          className="min-h-[52px] w-full rounded-full bg-aira-primary px-8 py-3.5 font-semibold text-white shadow-soft transition-colors hover:bg-aira-primary-dark sm:w-auto"
+          disabled={menyimpan}
+          className="min-h-[52px] w-full rounded-full bg-aira-primary px-8 py-3.5 font-semibold text-white shadow-soft transition-colors hover:bg-aira-primary-dark disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
-          Simpan Profil
+          {menyimpan ? "Menyimpan..." : "Simpan Profil"}
         </button>
         {tersimpan && (
           <span className="inline-flex items-center gap-2 font-medium text-aira-primary" role="status">
