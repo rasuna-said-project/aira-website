@@ -9,13 +9,22 @@ export default function KartuTitikAir({ titik, tingkat }) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-widest text-aira-text/55">{titik.type}</span>
-            <span className="rounded-full bg-aira-secondary/15 px-2.5 py-0.5 text-xs font-semibold text-aira-primary">
-              Data simulasi
+            <span className="text-xs font-semibold uppercase tracking-widest text-aira-text/55">
+              {titik.type}
             </span>
+
+            {titik.isSimulation && (
+              <span className="rounded-full bg-aira-secondary/15 px-2.5 py-0.5 text-xs font-semibold text-aira-primary">
+                Data simulasi
+              </span>
+            )}
           </div>
-          <h2 className="mt-1 text-xl font-semibold leading-snug text-aira-primary">{titik.name}</h2>
+
+          <h2 className="mt-1 text-xl font-semibold leading-snug text-aira-primary">
+            {titik.name}
+          </h2>
         </div>
+
         {tingkat && (
           <span className="shrink-0 rounded-full bg-aira-sand px-3 py-1 text-sm font-semibold text-aira-primary">
             {LABEL_KECOCOKAN[tingkat]}
