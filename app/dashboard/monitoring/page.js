@@ -1,4 +1,3 @@
-// app/dashboard/monitoring/page.js
 import MonitoringClient from "@/components/dashboard/monitoring/MonitoringClient";
 import { ambilDataMonitoring } from "@/services/monitoringService";
 
