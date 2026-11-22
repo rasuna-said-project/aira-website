@@ -86,6 +86,10 @@ export async function kirimPesanAssistant({
             typeof source.publisher === "string"
               ? source.publisher
               : "",
+          url:
+            typeof source.url === "string" && /^https?:\/\//i.test(source.url)
+              ? source.url
+              : null,
           page_start:
             Number.isInteger(source.page_start)
               ? source.page_start
@@ -117,6 +121,8 @@ export async function kirimPesanAssistant({
             guide_id: null,
             user_question: pertanyaan,
             assistant_response: answer,
+            sources,
+            response_mode: mode,
           });
 
         if (saveError) {
