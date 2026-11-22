@@ -12,21 +12,38 @@
 ## Teknologi
 | Area | Stack |
 |---|---|
-| Framework | Next.js App Router, JavaScript |
-| UI | React, Tailwind CSS, Lucide React |
-| Backend/database | Supabase (Auth, Postgres, RLS, RPC) |
-| AI | Gemini integration (server-side) |
-| Deployment | Vercel |
+| Framework | Next.js 16 (App Router, Turbopack), JavaScript |
+| UI library | React 19 |
+| Styling | Tailwind CSS v4 (token desain kustom `aira-*`) |
+| Komponen UI | shadcn/ui (style `radix-nova`) + Radix UI, class-variance-authority, tailwind-merge, tw-animate-css |
+| Ikon & konten | Lucide React, react-markdown (jawaban AIRA Assistant) |
+| Backend/database | Supabase (Auth, Postgres, RLS, RPC) via `@supabase/ssr` dan `@supabase/supabase-js` |
+| AI | Google Gemini + RAG/embedding (server-side) |
+| Data cuaca | Open-Meteo (estimasi curah hujan) |
+| Linting & testing | ESLint 9, Node.js built-in test runner |
+| Deployment | Vercel (branch `master`) |
 
 ## Setup lokal
-1. Clone repository dan masuk ke folder `aira-website`.
+1. Clone repository, masuk ke folder `aira-website`, lalu `git checkout development`.
 2. Install dependency: `npm install`.
 3. Siapkan environment variables sesuai bagian **Environment variables** di dokumentasi teknis dan konfigurasi project Supabase/Gemini.
 4. Jalankan development server: `npm run dev`.
 5. Buka `http://localhost:3000`.
 
 ## Environment variables
-Nama variabel yang diperlukan harus mengikuti file konfigurasi dan pemanggilan pada repository. Jangan commit `.env.local`, API keys, service-role keys, atau credential.
+Buat file `.env.local` di root proyek. Variabel yang dipakai kode:
+
+| Variabel | Fungsi |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | URL project Supabase |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` (atau `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) | Kunci publik Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | Kunci service role (hanya server, rahasia) |
+| `NEXT_PUBLIC_SITE_URL` | URL situs (callback auth, tautan) |
+| `GEMINI_API_KEY` | API key Gemini (hanya server) |
+| `GEMINI_MODELS`, `GEMINI_ASSISTANT_MODELS`, `GEMINI_EMBEDDING_MODEL`, `GEMINI_MODEL_TIMEOUT_MS` | Konfigurasi model AI |
+| `EMBEDDING_DIMENSION`, `SIMILARITY_THRESHOLD`, `TOP_K`, `EXACT_DOCUMENT_CHUNKS` | Pengaturan RAG |
+
+Nilai sebenarnya diminta ke PIC backend. Jangan commit `.env.local`, API keys, service-role keys, atau credential.
 
 ## Commands
 ```bash
@@ -46,7 +63,8 @@ npm run start
 - [Migration guide](docs/DB_MIGRATION_GUIDE.md)
 - [Repair audit report](docs/REPAIR_AUDIT_REPORT.md)
 - [UAT checklist](docs/UAT_CHACKELIST.md)
-- API docs/Swagger page: `/api-docs`
+- API docs/Swagger page: `https://aira-for-every-woman.vercel.app/api-docs`
+- [Dokumentasi Front-End](docs/DOKUMENTASI_FRONTEND.md)
 
 ## Security notes
 - Authenticated identity and admin authorization must be verified on the server.
@@ -60,6 +78,11 @@ npm run start
 | Resource | Link |
 |---|---|
 | Deployment | https://aira-for-every-woman.vercel.app |
-| Repository | Add repository URL |
-| Design | Add Figma URL |
-| Presentation | Add presentation URL |
+| Repository | https://github.com/rasuna-said-project/aira-website |
+| PRD, User Story, Dokumentasi AI | [PRD, User Story Link, and AI Documentation](https://docs.google.com/document/d/1qOyyvHvcriWqDCqpoYySpHlFvHtMnJex/edit?usp=sharing&ouid=105520435052131408445&rtpof=true&sd=true) |
+| Dokumentasi API | [API Documentation](https://aira-for-every-woman.vercel.app/api-docs) |
+| ERD | [Entity Relationship Diagram Link](https://docs.google.com/document/d/185Yeddy9Jr0-utp8sI8LSuPtsB1dvA2R69jkg8kEfFA/edit?usp=sharing) |
+| Schema Diagram | [Schema Diagram Link](https://dbdiagram.io/d/6b02a8815cb51eed0762cc80) |
+| Prototype | [Prototype AIRA Website](https://www.figma.com/make/ex5k2NGQq0ftB6BsxDRC4S/AIRA-Water-Resilience-Platform-Design?fullscreen=1&t=ImAUKE6k4teo97z7-1&code-node-id=0-6) |
+| User Flow | [User Flow AIRA Website](https://www.figma.com/design/osyN8RKVx4K3zZrLT7eg0R/User-Flow-AIRA?node-id=0-1&t=UwsGNkAbfOLN04nf-1) |
+| Presentation | [Rasuna Said Presentation Link](https://docs.google.com/presentation/d/1BYh97y4oUebioXvYiacLo9SLA9H8vH-7OOmid00t0_E/edit?usp=sharing) |
