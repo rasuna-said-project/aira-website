@@ -63,7 +63,7 @@ npm run start
 - [Migration guide](docs/DB_MIGRATION_GUIDE.md)
 - [Repair audit report](docs/REPAIR_AUDIT_REPORT.md)
 - [UAT checklist](docs/UAT_CHACKELIST.md)
-- API docs/Swagger page: `/api-docs`
+- API docs/Swagger page: `https://aira-for-every-woman.vercel.app/api-docs`
 - [Dokumentasi Front-End](docs/DOKUMENTASI_FRONTEND.md)
 
 ## Security notes
@@ -79,7 +79,8 @@ npm run start
 |---|---|
 | Deployment | https://aira-for-every-woman.vercel.app |
 | Repository | https://github.com/rasuna-said-project/aira-website |
-| PRD & User Story | [PRD and User Story Link](https://docs.google.com/document/d/1qOyyvHvcriWqDCqpoYySpHlFvHtMnJex/edit?usp=sharing&ouid=105520435052131408445&rtpof=true&sd=true) |
+| PRD, User Story, Dokumentasi AI | [PRD, User Story Link, and AI Documentation](https://docs.google.com/document/d/1qOyyvHvcriWqDCqpoYySpHlFvHtMnJex/edit?usp=sharing&ouid=105520435052131408445&rtpof=true&sd=true) |
+| Dokumentasi API | [API Documentation](https://aira-for-every-woman.vercel.app/api-docs) |
 | ERD | [Entity Relationship Diagram Link](https://docs.google.com/document/d/185Yeddy9Jr0-utp8sI8LSuPtsB1dvA2R69jkg8kEfFA/edit?usp=sharing) |
 | Schema Diagram | [Schema Diagram Link](https://dbdiagram.io/d/6b02a8815cb51eed0762cc80) |
 | Prototype | [Prototype AIRA Website](https://www.figma.com/make/ex5k2NGQq0ftB6BsxDRC4S/AIRA-Water-Resilience-Platform-Design?fullscreen=1&t=ImAUKE6k4teo97z7-1&code-node-id=0-6) |
