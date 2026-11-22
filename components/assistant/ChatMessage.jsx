@@ -132,9 +132,17 @@ export default function ChatMessage({ message }) {
                       </svg>
                     </span>
                     <div className="min-w-0">
-                      <p className="text-xs font-semibold text-aira-primary">
-                        {source.title || "Dokumen referensi AIRA"}
-                      </p>
+                      {source.url ? (
+                        <a href={source.url} target="_blank" rel="noopener noreferrer"
+                          className="text-xs font-semibold text-aira-primary underline underline-offset-2 hover:text-aira-primary/80"
+                          title="Buka dokumen sumber di tab baru">
+                          {source.title || "Dokumen referensi AIRA"}
+                        </a>
+                      ) : (
+                        <p className="text-xs font-semibold text-aira-primary">
+                          {source.title || "Dokumen referensi AIRA"}
+                        </p>
+                      )}
                       {source.publisher && (
                         <p className="mt-1 text-xs text-aira-text/65">{source.publisher}</p>
                       )}

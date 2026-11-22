@@ -1,6 +1,28 @@
 const CACHE_TTL = 24 * 60 * 60 * 1000;
 const cacheCurahHujan = new Map();
 
+// Koordinat referensi wilayah prioritas AIRA, untuk menghindari geocoding ambigu.
+const KOORDINAT_WILAYAH_PRIORITAS = [
+  { aliases: ["gunungkidul", "gunung kidul"], latitude: -7.96, longitude: 110.6, label: "Gunungkidul, DI Yogyakarta" },
+  { aliases: ["kupang"], latitude: -10.05, longitude: 123.85, label: "Kupang, NTT" },
+  { aliases: ["timor tengah selatan", "tts"], latitude: -9.86, longitude: 124.28, label: "Timor Tengah Selatan, NTT" },
+  { aliases: ["sumba timur"], latitude: -9.85, longitude: 120.25, label: "Sumba Timur, NTT" },
+  { aliases: ["malaka"], latitude: -9.6, longitude: 124.9, label: "Malaka, NTT" },
+  { aliases: ["wonogiri"], latitude: -7.82, longitude: 110.92, label: "Wonogiri, Jawa Tengah" },
+  { aliases: ["pacitan"], latitude: -8.2, longitude: 111.1, label: "Pacitan, Jawa Timur" },
+  { aliases: ["bima"], latitude: -8.5, longitude: 118.6, label: "Bima, NTB" },
+  { aliases: ["lombok timur"], latitude: -8.65, longitude: 116.53, label: "Lombok Timur, NTB" },
+  { aliases: ["jeneponto"], latitude: -5.67, longitude: 119.73, label: "Jeneponto, Sulawesi Selatan" },
+  { aliases: ["indramayu"], latitude: -6.33, longitude: 108.32, label: "Indramayu, Jawa Barat" },
+];
+
+function cariKoordinatPrioritas(lokasi) {
+  const teks = normalisasiNama(lokasi);
+  return KOORDINAT_WILAYAH_PRIORITAS.find((wilayah) =>
+    wilayah.aliases.some((alias) => teks.includes(normalisasiNama(alias)))
+  );
+}
+
 const TAHUN_MULAI = 1991;
 const TAHUN_AKHIR = 2020;
 
@@ -85,6 +107,16 @@ function cocokDenganLokasi(tempat, lokasi) {
 // Lokasi harus cocok dengan wilayah yang diminta. Jangan menurunkan tingkat
 // pencarian ke kabupaten/provinsi karena dapat memakai data wilayah lain.
 async function cariKoordinat(lokasi) {
+  const prioritas = cariKoordinatPrioritas(lokasi);
+  if (prioritas) {
+    return {
+      latitude: prioritas.latitude,
+      longitude: prioritas.longitude,
+      nama: prioritas.label,
+      tingkatLokasi: prioritas.label,
+      sumberKoordinat: "mapping_wilayah_prioritas",
+    };
+  }
   return cariKoordinatLangsung(lokasi);
 }
 

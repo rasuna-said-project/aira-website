@@ -988,6 +988,20 @@ function validasiNomorSumber(numbers, jumlahDokumen) {
 // 19. NORMALISASI SUMBER
 // ==================================================
 
+function ambilURLDokumen(item) {
+  const metadata = item?.metadata;
+  const meta = typeof metadata === "string"
+    ? (() => { try { return JSON.parse(metadata); } catch { return {}; } })()
+    : (metadata && typeof metadata === "object" ? metadata : {});
+  const kandidat = [item?.source_url, item?.document_url, item?.url, item?.file_url,
+    meta.source_url, meta.document_url, meta.url, meta.file_url, meta.original_url, meta.link, meta.web_url];
+  for (const value of kandidat) {
+    if (typeof value !== "string") continue;
+    try { const url = new URL(value.trim()); if (url.protocol === "https:" || url.protocol === "http:") return url.toString(); } catch {}
+  }
+  return null;
+}
+
 function normalisasiSumber(source, number) {
   const halamanAwal = Number(source.page_start);
   const halamanAkhir = Number(source.page_end);
@@ -1003,6 +1017,7 @@ function normalisasiSumber(source, number) {
       typeof source.publisher === "string"
         ? source.publisher
         : "",
+    url: ambilURLDokumen(source),
 
     page_start:
       Number.isInteger(halamanAwal) && halamanAwal > 0
