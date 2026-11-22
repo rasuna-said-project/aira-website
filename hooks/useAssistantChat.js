@@ -51,6 +51,8 @@ export function useAssistantChat() {
             id: `assistant-${item.interaction_id}`,
             role: "assistant",
             content: item.assistant_response,
+            mode: item.response_mode || null,
+            sources: Array.isArray(item.sources) ? item.sources : [],
           });
         }
 

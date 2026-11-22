@@ -423,7 +423,7 @@ async function cariDokumenPeraturanSpesifik(
   const { data: registry, error } = await supabase
     .from("document_registry")
     .select(
-      "document_id,title,original_filename,publisher,publication_year,keywords,processing_status,last_successful_checksum"
+      "document_id,title,original_filename,publisher,publication_year,keywords,processing_status,last_successful_checksum,drive_url"
     )
     .eq("processing_status", "completed")
     .not("last_successful_checksum", "is", null)
@@ -488,6 +488,7 @@ async function cariDokumenPeraturanSpesifik(
           ...chunk,
           title: doc.title || doc.original_filename,
           publisher: doc.publisher || "",
+          document_url: doc.drive_url || null,
           _lexicalScore: hitungRelevansiIsi(
             pertanyaan,
             chunk.content
@@ -1255,6 +1256,35 @@ async function jawabDenganHybrid(
   }
 }
 
+
+// Ambil URL dan metadata dokumen dari registry berdasarkan document_id
+// agar sumber semantic retrieval juga memiliki tautan langsung.
+async function lengkapiMetadataDokumen(supabase, chunks) {
+  if (!Array.isArray(chunks) || chunks.length === 0) return chunks || [];
+  const ids = [...new Set(chunks.map((c) => c.document_id).filter(Boolean))];
+  if (!ids.length) return chunks;
+  const { data, error } = await supabase
+    .from("document_registry")
+    .select("document_id,title,original_filename,publisher,drive_url")
+    .in("document_id", ids)
+    .abortSignal(AbortSignal.timeout(10000));
+  if (error) {
+    console.warn("[AIRA Retrieval] Metadata URL registry tidak dapat diambil:", error.message);
+    return chunks;
+  }
+  const byId = new Map((data || []).map((doc) => [doc.document_id, doc]));
+  return chunks.map((chunk) => {
+    const doc = byId.get(chunk.document_id);
+    if (!doc) return chunk;
+    return {
+      ...chunk,
+      title: chunk.title || doc.title || doc.original_filename || "Dokumen referensi AIRA",
+      publisher: chunk.publisher || doc.publisher || "",
+      document_url: chunk.document_url || doc.drive_url || null,
+    };
+  });
+}
+
 // ==================================================
 // 23. FUNGSI UTAMA
 // ==================================================
@@ -1406,9 +1436,13 @@ export async function jawabPertanyaanAssistant({
 
     // H. Gabungkan hasil retrieval.
 
-    const potonganDokumen = gabungkanHasilRetrieval(
+    const potonganDokumenAwal = gabungkanHasilRetrieval(
       spesifik,
       semantik
+    );
+    const potonganDokumen = await lengkapiMetadataDokumen(
+      supabase,
+      potonganDokumenAwal
     );
 
     console.info(

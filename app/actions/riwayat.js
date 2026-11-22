@@ -98,6 +98,8 @@ export async function ambilRiwayatAssistant() {
       interaction_id,
       user_question,
       assistant_response,
+      sources,
+      response_mode,
       created_at
     `)
     .eq("user_id", user.id)
