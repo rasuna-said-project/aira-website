@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { LogOut } from "lucide-react";
 
 import { logout } from "@/app/actions/auth";
@@ -19,9 +20,10 @@ export default function LogoutDialog({ open, onClose }) {
 
   if (!open) return null;
 
-  return (
+  // Portal ke <body> agar overlay tidak terjebak stacking context layout (sidebar/dashboard).
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 grid place-items-center bg-aira-primary-dark/60 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] grid place-items-center bg-aira-primary-dark/60 p-4 backdrop-blur-sm"
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
@@ -54,6 +56,7 @@ export default function LogoutDialog({ open, onClose }) {
           </button>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
