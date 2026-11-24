@@ -113,9 +113,9 @@ export const ABOUT_CONTENT = {
   teamTitle: "Tim Pengembang",
   teamDesc: "Peserta Bootcamp AI Full Stack Web Development Perempuan Inovasi GENerasi AI 2026.",
   team: [
-    { name: "Tria Agusti Khoirun Nisa’", role: "Ketua Tim Rasuna Said", photo: "/images/about/tim-tria.png", lead: true },
-    { name: "Amanda Putri", role: "Anggota Tim Rasuna Said", photo: "/images/about/tim-amanda.png", lead: false },
-    { name: "Reikananta Fauziah Lazuardi", role: "Anggota Tim Rasuna Said", photo: "/images/about/tim-reikananta.png", lead: false },
-    { name: "Siti Hafsoh", role: "Anggota Tim Rasuna Said", photo: "/images/about/tim-hafsoh.png", lead: false },
+    { name: "Tria Agusti Khoirun Nisa’", role: "Team Lead · Backend & AI Developer", photo: "/images/about/tim-tria.png", lead: true },
+    { name: "Amanda Putri", role: "Database & Backend Developer", photo: "/images/about/tim-amanda.png", lead: false },
+    { name: "Reikananta Fauziah Lazuardi", role: "Frontend Developer · UI Designer", photo: "/images/about/tim-reikananta.png", lead: false },
+    { name: "Siti Hafsoh", role: "Frontend Developer · UI Designer", photo: "/images/about/tim-hafsoh.png", lead: false },
   ],
 };
