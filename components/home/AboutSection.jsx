@@ -68,7 +68,7 @@ export default function AboutSection() {
                 key={p.name}
                 className="rounded-3xl border border-aira-primary/5 bg-white p-3 shadow-soft transition-transform hover:-translate-y-1 sm:p-4"
               >
-                <div className="relative aspect-[37/45] w-full overflow-hidden rounded-2xl bg-linear-to-b from-aira-sage/30 to-aira-bg">
+                <div className="relative aspect-37/45 w-full overflow-hidden rounded-2xl bg-linear-to-b from-aira-sage/30 to-aira-bg">
                   <TeamBackdrop />
                   <Image
                     src={p.photo}
