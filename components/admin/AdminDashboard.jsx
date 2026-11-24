@@ -136,7 +136,7 @@ const statColors = {
 const STAT_DESTINATIONS = {
   verified: "/admin/kelola-titik-air",
   pending: "/admin/verifikasi",
-  activity: "#riwayat-aktivitas",
+  activity: "/admin/kelola-titik-air",
 };
 
 /* =========================================
