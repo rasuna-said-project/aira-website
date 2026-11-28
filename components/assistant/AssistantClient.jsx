@@ -16,7 +16,7 @@ export default function AssistantClient() {
     loading,
     historyLoading,
     error,
-    endRef,
+    panelRef,
     sendMessage,
     retryMessageSend,
   } = useAssistantChat();
@@ -25,7 +25,7 @@ export default function AssistantClient() {
     <section className="w-full min-w-0 bg-aira-bg">
       <div
         className="
-          mx-auto flex w-full max-w-205
+          mx-auto flex w-full max-w-205 min-w-0
           min-h-[min(760px,100svh)]
           flex-col gap-0
           px-4 py-5
@@ -39,11 +39,11 @@ export default function AssistantClient() {
         <ChatPanel
           messages={messages}
           loading={loading}
-           historyLoading={historyLoading}
+          historyLoading={historyLoading}
           error={error}
           onSelectPrompt={sendMessage}
           onRetry={retryMessageSend}
-          endRef={endRef}
+          panelRef={panelRef}
         />
 
         {/* INPUT PESAN */}
@@ -57,7 +57,7 @@ export default function AssistantClient() {
         {/* NAVIGASI FITUR */}
         <AssistantQuickLinks />
 
-        {/* DISCLAIMER (selalu tampil di bagian bawah) */}
+        {/* DISCLAIMER */}
         <AssistantNotice />
       </div>
     </section>

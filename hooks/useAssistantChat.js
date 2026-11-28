@@ -1,4 +1,4 @@
-"use client";
+"use client"; 
 
 import {
   useCallback,
@@ -8,12 +8,8 @@ import {
 } from "react";
 
 import { INITIAL_MESSAGE } from "@/components/assistant/assistant.constants";
-import {
-  kirimPesanAssistant,
-} from "@/app/actions/assistant";
-import {
-  ambilRiwayatAssistant,
-} from "@/app/actions/riwayat";
+import { kirimPesanAssistant } from "@/app/actions/assistant";
+import { ambilRiwayatAssistant } from "@/app/actions/riwayat";
 
 export function useAssistantChat() {
   const [messages, setMessages] = useState([
@@ -26,8 +22,8 @@ export function useAssistantChat() {
   const [retryMessage, setRetryMessage] = useState("");
   const [historyLoading, setHistoryLoading] = useState(true);
 
-  const endRef = useRef(null);
-  const historyLoadedRef = useRef(false);
+  // Referensi langsung ke area scroll percakapan
+  const panelRef = useRef(null);
 
   useEffect(() => {
     let active = true;
@@ -52,7 +48,9 @@ export function useAssistantChat() {
             role: "assistant",
             content: item.assistant_response,
             mode: item.response_mode || null,
-            sources: Array.isArray(item.sources) ? item.sources : [],
+            sources: Array.isArray(item.sources)
+              ? item.sources
+              : [],
           });
         }
 
@@ -62,8 +60,6 @@ export function useAssistantChat() {
             ...restoredMessages,
           ]);
         }
-
-        historyLoadedRef.current = true;
       } catch (err) {
         console.error(
           "[AIRA Assistant] Gagal memuat riwayat:",
@@ -83,10 +79,15 @@ export function useAssistantChat() {
     };
   }, []);
 
+  // Auto-scroll hanya pada area percakapan
   useEffect(() => {
-    endRef.current?.scrollIntoView({
+    const panel = panelRef.current;
+
+    if (!panel) return;
+
+    panel.scrollTo({
+      top: panel.scrollHeight,
       behavior: "smooth",
-      block: "end",
     });
   }, [messages, loading, error]);
 
@@ -197,9 +198,9 @@ export function useAssistantChat() {
     setInput,
     loading: loading || historyLoading,
     error,
-    endRef,
+    panelRef,
     sendMessage,
     retryMessageSend,
     historyLoading,
   };
-}
+} 
